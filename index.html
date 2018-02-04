@@ -756,17 +756,17 @@
 							var hitsTarget;
 							if (obj.lvl === UNTRAINED) {
 								if (obj.linkedAttrs.length == 1) {
-									explanation = `<p>You're untrained in ${displayName}, so roll 2D6 and add your ${obj.linkedAttrs[0].toUpperCase()} score (${obj.attrs[linkedAttrs[0]].score}), plus any conditional modifiers the gamemaster deems fit, trying to hit a target of 12.</p>`;
+									explanation = `<p>You're untrained in ${displayName}, so roll 2D6 and add your ${obj.linkedAttrs[0].toUpperCase()} score (${obj.attrs[obj.linkedAttrs[0]].score}), plus any conditional modifiers the gamemaster deems fit, trying to hit a target of 12.</p>`;
 									if (rollResults.type == ROLL_FUMBLE || rollResults == ROLL_MIRACULOUS) {
 										explanation += `<p>Example: ${exampleString}</p>`
 									} else {
-										modifiedTotal = rollResults.total + obj.attrs[linkedAttrs[0]].score;
+										modifiedTotal = rollResults.total + obj.attrs[obj.linkedAttrs[0]].score;
 										hitsTarget = modifiedTotal >= 12;
-										explanation += `<p>Example: ${exampleString} Adding ${obj.attrs[linkedAttrs[0]].score} yields ${modifiedTotal} which ${hitsTarget ? 'passes':'fails'} the skill check.</p>`
+										explanation += `<p>Example: ${exampleString} Adding ${obj.attrs[obj.linkedAttrs[0]].score} yields ${modifiedTotal} which ${hitsTarget ? 'passes':'fails'} the skill check.</p>`
 									}
 								} else {
-									attrModifiers = obj.attrs[linkedAttrs[0]].score + obj.attrs[linkedAttrs[1]].score;
-									explanation = `<p>You're untrained in ${displayName}, so roll 2D6 and add your ${obj.linkedAttrs[0].toUpperCase()} and ${obj.linkedAttrs[1].toUpperCase()} scores (${obj.attrs[linkedAttrs[0]].score} + ${obj.attrs[linkedAttrs[1]].score} = ${attrModifiers}), plus any conditional modifiers the gamemaster deems fit, trying to hit a target of 18.</p>`;
+									attrModifiers = obj.attrs[obj.linkedAttrs[0]].score + obj.attrs[obj.linkedAttrs[1]].score;
+									explanation = `<p>You're untrained in ${displayName}, so roll 2D6 and add your ${obj.linkedAttrs[0].toUpperCase()} and ${obj.linkedAttrs[1].toUpperCase()} scores (${obj.attrs[obj.linkedAttrs[0]].score} + ${obj.attrs[obj.linkedAttrs[1]].score} = ${attrModifiers}), plus any conditional modifiers the gamemaster deems fit, trying to hit a target of 18.</p>`;
 									if (rollResults.type == ROLL_FUMBLE || rollResults == ROLL_MIRACULOUS) {
 										explanation += `<p>Example: ${exampleString}</p>`
 									} else {
@@ -778,11 +778,11 @@
 							} else {
 								var linkedAttrExplanation;
 								if (obj.linkedAttrs.length == 1) {
-									linkedAttrExplanation = `${obj.linkedAttrs[0].toUpperCase()} attribute (${obj.attrs[linkedAttrs[0]].link})`;
-									attrModifiers = obj.attrs[linkedAttrs[0]].link;
+									linkedAttrExplanation = `${obj.linkedAttrs[0].toUpperCase()} attribute (${obj.attrs[obj.linkedAttrs[0]].link})`;
+									attrModifiers = obj.attrs[obj.linkedAttrs[0]].link;
 								} else {
-									attrModifiers = obj.attrs[linkedAttrs[0]].link + obj.attrs[linkedAttrs[1]].link;
-									linkedAttrExplanation = `${obj.linkedAttrs[0].toUpperCase()} and ${obj.linkedAttrs[1].toUpperCase()} attributes (${obj.attrs[linkedAttrs[0]].link}+${obj.attrs[linkedAttrs[1]].link}=${attrModifiers})`;
+									attrModifiers = obj.attrs[obj.linkedAttrs[0]].link + obj.attrs[obj.linkedAttrs[1]].link;
+									linkedAttrExplanation = `${obj.linkedAttrs[0].toUpperCase()} and ${obj.linkedAttrs[1].toUpperCase()} attributes (${obj.attrs[obj.linkedAttrs[0]].link}+${obj.attrs[obj.linkedAttrs[1]].link}=${attrModifiers})`;
 								}
 								explanation = `<p>You are trained in ${displayName}, so roll 2D6 adding your skill level (${obj.lvl}) and the linked attribute modifier for the ${linkedAttrExplanation}, and any conditional modifiers the game master deems fit. Because this skill is rated as ${actionRating === SKILL_ACTION_SIMPLE ? 'Simple' : 'Complex'}-${obj.effectiveTraining === SKILL_TRAINING_BASIC ? 'Basic':'Advanced'}, you're trying to hit a target score of ${obj.tn}.</p>`;
 								if (rollResults.type == ROLL_FUMBLE || rollResults == ROLL_MIRACULOUS) {
