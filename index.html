@@ -10,7 +10,7 @@
 				font-size: 20px;
 			}
 			.input-xp {
-				width: 4em;
+				width: 4.5em;
 			}
 		</style>
 		<title>Battletech - A Time of War Character Sheet by Nebu Pookins</title>
@@ -128,10 +128,6 @@
 				assert(_.isEqual(actual, expected), `Expected ${toString(expected)} but received ${toString(actual)}.`);
 			}
 
-			function identity(x) {
-				return x;
-			}
-
 			/**
 			 * Returns a function which, when invoked, will return each element in the
 			 * provided array one at a time. Intended to be used to mock functions for
@@ -141,7 +137,7 @@
 				var position = 0;
 				return function() {
 					if (position >= returnValues.length) {
-						throw `mockFunction invoked too many (${position + 1}) times`
+						throw `mockFunction invoked too many (${position + 1}) times`;
 					}
 					position++;
 					return returnValues[position - 1];
@@ -472,7 +468,7 @@
 				function createAttribute(attrCode, pageRef, initialValue) {
 					const $tbody = $tableAttributes.find('tbody');
 					const $tr = $('<tr>');
-					const $tdRoll = $(`<td class="roll-dice">🎲</td>`)
+					const $tdRoll = $(`<td class="roll-dice">🎲</td>`);
 					const $tdLabel = $(`<td><label for="attribute-${attrCode}-xp">${attrCode.toUpperCase()}</label></td>`);
 					const $inputXp = $(`<input type="number" class="form-control input-xp" id="attribute-${attrCode}-xp" min="100" value="${initialValue}" />`);
 					const $tdXp = $('<td>');
@@ -490,8 +486,8 @@
 					const attributeXpProperty = formElementToProperty($inputXp);
 					const attributeScoreProperty = attributeXpProperty.map(xpToAttributeLevel);
 					const attributeLinkbonusProperty = attributeScoreProperty.map(attributeScoreToLinkBonus);
-					attributeScoreProperty.onValue(score => { $tdScore.text(score) });
-					attributeLinkbonusProperty.onValue(bonus => { $tdLinkbonus.text(bonus) });
+					attributeScoreProperty.onValue(score => { $tdScore.text(score); });
+					attributeLinkbonusProperty.onValue(bonus => { $tdLinkbonus.text(bonus); });
 
 					attributeScoreProperty.sampledBy($tdRoll.asEventStream('click'))
 						.onValue(attrScore => {
@@ -516,8 +512,9 @@
 									break;
 								case ROLL_MIRACULOUS:
 									exampleString = `You rolled ${individualRollString}, a miraculous result! You automatically succeed the attribute check, assuming it is physically possible to do so.`;
+									break;
 								default:
-									throw `Unrecognized result type ${toStringrollResults.type}.`;
+									throw `Unrecognized result type ${rollResults.type}.`;
 							}
 							swal({
 								titleText: `${attrCode.toUpperCase()} Attribute Check`,
@@ -573,10 +570,10 @@
 					const traitNoteProperty = formElementToProperty($inputNotes);
 					const traitTpProperty = traitXpProperty.map((xp) => xpToTraitPoints(xp, allowedTps));
 					traitTpProperty.onValue(tp => $tdTp.text(tp));
-					const shouldHideProperty = hide0TraitsProperty.combine(traitXpProperty, (hide, xp) => hide && xp == 0);
+					const shouldHideProperty = hide0TraitsProperty.combine(traitXpProperty, (hide, xp) => hide && xp === 0);
 					shouldHideProperty.onValue(shouldHide => {
 						if (shouldHide) {
-							$tr.fadeOut()
+							$tr.fadeOut();
 						} else {
 							$tr.fadeIn();
 						}
@@ -664,7 +661,7 @@
 
 					const $tbody = $tableSkills.find('tbody');
 					const $tr = $('<tr>');
-					const $tdRoll = $(`<td class="roll-dice">🎲</td>`)
+					const $tdRoll = $(`<td class="roll-dice">🎲</td>`);
 					const $label = $(`<label for="skill-${id}"></label>`);
 					const $tdLabel = $(`<td>`);
 					$tdLabel.append($label);
@@ -759,7 +756,7 @@
 						tn: skillTNProperty,
 						effectiveTraining: skillEffectiveTrainingProperty
 					}).onValue(obj => {
-						$tdTarget.text(`${obj.tn}/${actionRating == SKILL_ACTION_SIMPLE ? 'S':'C'}${obj.effectiveTraining == SKILL_TRAINING_BASIC ? 'B': 'A' }`)
+						$tdTarget.text(`${obj.tn}/${actionRating == SKILL_ACTION_SIMPLE ? 'S':'C'}${obj.effectiveTraining == SKILL_TRAINING_BASIC ? 'B': 'A' }`);
 					});
 					Bacon.combineTemplate({
 						lvl: skillLevelProperty,
@@ -787,8 +784,9 @@
 									break;
 								case ROLL_MIRACULOUS:
 									exampleString = `You rolled ${individualRollString}, a miraculous result! You automatically succeed the attribute check, assuming it is physically possible to do so.`;
+									break;
 								default:
-									throw `Unrecognized result type ${toStringrollResults.type}.`;
+									throw `Unrecognized result type ${rollResults.type}.`;
 							}
 							var explanation;
 							var attrModifiers;
@@ -798,21 +796,21 @@
 								if (obj.linkedAttrs.length == 1) {
 									explanation = `<p>You're untrained in ${obj.displayName}, so roll 2D6 and add your ${obj.linkedAttrs[0].toUpperCase()} score (${obj.attrs[obj.linkedAttrs[0]].score}), plus any conditional modifiers the gamemaster deems fit, trying to hit a target of 12.</p>`;
 									if (rollResults.type == ROLL_FUMBLE || rollResults == ROLL_MIRACULOUS) {
-										explanation += `<p>Example: ${exampleString}</p>`
+										explanation += `<p>Example: ${exampleString}</p>`;
 									} else {
 										modifiedTotal = rollResults.total + obj.attrs[obj.linkedAttrs[0]].score;
 										hitsTarget = modifiedTotal >= 12;
-										explanation += `<p>Example: ${exampleString} Adding ${obj.attrs[obj.linkedAttrs[0]].score} yields ${modifiedTotal} which ${hitsTarget ? 'passes':'fails'} the skill check.</p>`
+										explanation += `<p>Example: ${exampleString} Adding ${obj.attrs[obj.linkedAttrs[0]].score} yields ${modifiedTotal} which ${hitsTarget ? 'passes':'fails'} the skill check.</p>`;
 									}
 								} else {
 									attrModifiers = obj.attrs[obj.linkedAttrs[0]].score + obj.attrs[obj.linkedAttrs[1]].score;
 									explanation = `<p>You're untrained in ${obj.displayName}, so roll 2D6 and add your ${obj.linkedAttrs[0].toUpperCase()} and ${obj.linkedAttrs[1].toUpperCase()} scores (${obj.attrs[obj.linkedAttrs[0]].score} + ${obj.attrs[obj.linkedAttrs[1]].score} = ${attrModifiers}), plus any conditional modifiers the gamemaster deems fit, trying to hit a target of 18.</p>`;
 									if (rollResults.type == ROLL_FUMBLE || rollResults == ROLL_MIRACULOUS) {
-										explanation += `<p>Example: ${exampleString}</p>`
+										explanation += `<p>Example: ${exampleString}</p>`;
 									} else {
 										modifiedTotal = rollResults.total + attrModifiers;
 										hitsTarget = modifiedTotal >= 18;
-										explanation += `<p>Example: ${exampleString} Adding ${attrModifiers} yields ${modifiedTotal} which ${hitsTarget ? 'passes':'fails'} the skill check.</p>`
+										explanation += `<p>Example: ${exampleString} Adding ${attrModifiers} yields ${modifiedTotal} which ${hitsTarget ? 'passes':'fails'} the skill check.</p>`;
 									}
 								}
 							} else {
@@ -826,11 +824,11 @@
 								}
 								explanation = `<p>You are trained in ${obj.displayName}, so roll 2D6 adding your skill level (${obj.lvl}) and the linked attribute modifier for the ${linkedAttrExplanation}, and any conditional modifiers the game master deems fit. Because this skill is rated as ${actionRating === SKILL_ACTION_SIMPLE ? 'Simple' : 'Complex'}-${obj.effectiveTraining === SKILL_TRAINING_BASIC ? 'Basic':'Advanced'}, you're trying to hit a target score of ${obj.tn}.</p>`;
 								if (rollResults.type == ROLL_FUMBLE || rollResults == ROLL_MIRACULOUS) {
-									explanation += `<p>Example: ${exampleString}</p>`
+									explanation += `<p>Example: ${exampleString}</p>`;
 								} else {
 									modifiedTotal = rollResults.total + obj.lvl + attrModifiers;
 									hitsTarget = modifiedTotal >= obj.tn;
-									explanation += `<p>Example: ${exampleString} Adding ${obj.lvl} and ${attrModifiers} yields ${modifiedTotal} which ${hitsTarget ? 'passes':'fails'} the skill check.</p>`
+									explanation += `<p>Example: ${exampleString} Adding ${obj.lvl} and ${attrModifiers} yields ${modifiedTotal} which ${hitsTarget ? 'passes':'fails'} the skill check.</p>`;
 								}
 							}
 							swal({
@@ -838,10 +836,10 @@
 								html: explanation,
 							});
 						});
-					const shouldHideProperty = hide0SkillsProperty.combine(skillXpProperty, (hide, xp) => hide && xp == 0);
+					const shouldHideProperty = hide0SkillsProperty.combine(skillXpProperty, (hide, xp) => hide && xp === 0);
 					shouldHideProperty.onValue(shouldHide => {
 						if (shouldHide) {
-							$tr.fadeOut()
+							$tr.fadeOut();
 						} else {
 							$tr.fadeIn();
 						}
@@ -849,7 +847,7 @@
 					return {
 						xp: skillXpProperty,
 						notes: skillNoteProperty
-					}
+					};
 				}
 
 				const skillProperties = {};
@@ -1046,12 +1044,12 @@
 						retVal.a[k] = json.a[k];
 					});
 					Object.keys(json.t).forEach((k) => {
-						if ((json.t[k].x != 0) || (json.t[k].n != '')) {
+						if ((json.t[k].x !== 0) || (json.t[k].n !== '')) {
 							retVal.t[k] = json.t[k];
 						}
 					});
 					Object.keys(json.s).forEach((k) => {
-						if ((json.s[k].x != 0) || (json.s[k].n != '')) {
+						if ((json.s[k].x !== 0) || (json.s[k].n !== '')) {
 							retVal.s[k] = json.s[k];
 						}
 					});
@@ -1075,7 +1073,7 @@
 				compressedDataProperty.onValue(v => {
 					const stateObj = '';
 					const title = '';
-					url = '?'+v;
+					const url = '?'+v;
 					window.history.replaceState(stateObj, title, url);
 				});
 				const $pdfLink = $('#pdfLink');
