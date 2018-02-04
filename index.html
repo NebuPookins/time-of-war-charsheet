@@ -632,7 +632,9 @@
 				const hide0SkillsProperty = formElementToProperty($('#hide-0-skills'));
 				/**
 				 * @param names array of String of length 1 or 2. name[0] is the skill
-				 * 		name, name[1] is the subskill if any.
+				 * 		name, name[1] is the subskill if any. If the array has length 2,
+				 * 		and name[1] is null, this is a special value indicating that the
+				 * 		subskill should be specified by the notes.
 				 * @param id used to construct HTML id.
 				 * @param linkedAttrs array that looks like ['str'], ['str', 'rfl'] or
 				 * 		['str', ['str', 'rfl']] for basic, advanced and tiered skills
@@ -643,12 +645,13 @@
 						linkedAttrs.length === 1 ? SKILL_TRAINING_BASIC :
 						_.isArray(linkedAttrs[1]) ? SKILL_TRAINING_TIERED :
 						SKILL_TRAINING_ADVANCED;
-					const displayName = `${names[0]}${names[1] ? '/' + names[1]:''}`;
 					initialValue = initialValue || {x: 0, n: ''};
 
 					const $tbody = $tableSkills.find('tbody');
 					const $tr = $('<tr>');
-					const $tdLabel = $(`<td><label for="skill-${id}">${displayName}</label></td>`);
+					const $label = $(`<label for="skill-${id}"></label>`);
+					const $tdLabel = $(`<td>`);
+					$tdLabel.append($label);
 					const $inputNotes = $(`<input type="text" class="form-control" value="${initialValue.n}"/>`);
 					const $tdNotes = $(`<td>`);
 					$tdNotes.append($inputNotes);
@@ -675,6 +678,22 @@
 					$tbody.append($tr);
 					const skillXpProperty = formElementToProperty($inputXp);
 					const skillNoteProperty = formElementToProperty($inputNotes);
+					const displayNameProperty = skillNoteProperty.map(notes => {
+						if (names.length == 1) {
+							return names[0];
+						} else {
+							if (names[1] === null) {
+								if (notes === '') {
+									return `${names[0]}/Specify in Notes`;
+								} else {
+									return `${names[0]}/${notes}`;
+								}
+							} else {
+								return `${names[0]}/${names[1]}`;
+							}
+						}
+					});
+					displayNameProperty.onValue(displayName => { $label.text(displayName); });
 					const skillLevelProperty = skillXpProperty
 						.combine(traitProperties.fastL.tp, xpToSkillLevel);
 					const skillBelow4Property = skillLevelProperty.map(lvl => lvl === UNTRAINED || lvl < 4);
@@ -732,7 +751,8 @@
 						linkedAttrs: skillLinkProperty,
 						attrs: attrProperties,
 						effectiveTraining: skillEffectiveTrainingProperty,
-						tn: skillTNProperty
+						tn: skillTNProperty,
+						displayName: displayNameProperty
 					}).sampledBy($tdRoll.asEventStream('click'))
 						.onValue(obj => {
 							//TODO handle Natural Aptitude
@@ -761,7 +781,7 @@
 							var hitsTarget;
 							if (obj.lvl === UNTRAINED) {
 								if (obj.linkedAttrs.length == 1) {
-									explanation = `<p>You're untrained in ${displayName}, so roll 2D6 and add your ${obj.linkedAttrs[0].toUpperCase()} score (${obj.attrs[obj.linkedAttrs[0]].score}), plus any conditional modifiers the gamemaster deems fit, trying to hit a target of 12.</p>`;
+									explanation = `<p>You're untrained in ${obj.displayName}, so roll 2D6 and add your ${obj.linkedAttrs[0].toUpperCase()} score (${obj.attrs[obj.linkedAttrs[0]].score}), plus any conditional modifiers the gamemaster deems fit, trying to hit a target of 12.</p>`;
 									if (rollResults.type == ROLL_FUMBLE || rollResults == ROLL_MIRACULOUS) {
 										explanation += `<p>Example: ${exampleString}</p>`
 									} else {
@@ -771,7 +791,7 @@
 									}
 								} else {
 									attrModifiers = obj.attrs[obj.linkedAttrs[0]].score + obj.attrs[obj.linkedAttrs[1]].score;
-									explanation = `<p>You're untrained in ${displayName}, so roll 2D6 and add your ${obj.linkedAttrs[0].toUpperCase()} and ${obj.linkedAttrs[1].toUpperCase()} scores (${obj.attrs[obj.linkedAttrs[0]].score} + ${obj.attrs[obj.linkedAttrs[1]].score} = ${attrModifiers}), plus any conditional modifiers the gamemaster deems fit, trying to hit a target of 18.</p>`;
+									explanation = `<p>You're untrained in ${obj.displayName}, so roll 2D6 and add your ${obj.linkedAttrs[0].toUpperCase()} and ${obj.linkedAttrs[1].toUpperCase()} scores (${obj.attrs[obj.linkedAttrs[0]].score} + ${obj.attrs[obj.linkedAttrs[1]].score} = ${attrModifiers}), plus any conditional modifiers the gamemaster deems fit, trying to hit a target of 18.</p>`;
 									if (rollResults.type == ROLL_FUMBLE || rollResults == ROLL_MIRACULOUS) {
 										explanation += `<p>Example: ${exampleString}</p>`
 									} else {
@@ -789,7 +809,7 @@
 									attrModifiers = obj.attrs[obj.linkedAttrs[0]].link + obj.attrs[obj.linkedAttrs[1]].link;
 									linkedAttrExplanation = `${obj.linkedAttrs[0].toUpperCase()} and ${obj.linkedAttrs[1].toUpperCase()} attributes (${obj.attrs[obj.linkedAttrs[0]].link}+${obj.attrs[obj.linkedAttrs[1]].link}=${attrModifiers})`;
 								}
-								explanation = `<p>You are trained in ${displayName}, so roll 2D6 adding your skill level (${obj.lvl}) and the linked attribute modifier for the ${linkedAttrExplanation}, and any conditional modifiers the game master deems fit. Because this skill is rated as ${actionRating === SKILL_ACTION_SIMPLE ? 'Simple' : 'Complex'}-${obj.effectiveTraining === SKILL_TRAINING_BASIC ? 'Basic':'Advanced'}, you're trying to hit a target score of ${obj.tn}.</p>`;
+								explanation = `<p>You are trained in ${obj.displayName}, so roll 2D6 adding your skill level (${obj.lvl}) and the linked attribute modifier for the ${linkedAttrExplanation}, and any conditional modifiers the game master deems fit. Because this skill is rated as ${actionRating === SKILL_ACTION_SIMPLE ? 'Simple' : 'Complex'}-${obj.effectiveTraining === SKILL_TRAINING_BASIC ? 'Basic':'Advanced'}, you're trying to hit a target score of ${obj.tn}.</p>`;
 								if (rollResults.type == ROLL_FUMBLE || rollResults == ROLL_MIRACULOUS) {
 									explanation += `<p>Example: ${exampleString}</p>`
 								} else {
@@ -799,7 +819,7 @@
 								}
 							}
 							swal({
-								titleText: `${displayName} Skill Check`,
+								titleText: `${obj.displayName} Skill Check`,
 								html: explanation,
 							});
 						});
@@ -826,17 +846,17 @@
 					'animal-tra': createSkill(["Animal Handling", "Training"],            'animal-tra', ['wil'],                 SKILL_ACTION_SIMPLE,  [143], initialValueJson.s['animal-tra']),
 					'apprai':     createSkill(["Appraisal"],                              'apprai',     ['int'],                 SKILL_ACTION_COMPLEX, [143], initialValueJson.s['apprai']),
 					'archer':     createSkill(["Archery"],                                'archer',     ['dex'],                 SKILL_ACTION_SIMPLE,  [143], initialValueJson.s['archer']),
-					'art-000':    createSkill(["Art", "Specify in Notes"],                'art-000',    ['dex', ['dex', 'int']], SKILL_ACTION_COMPLEX, [144], initialValueJson.s['art-000']),
-					'art-001':    createSkill(["Art", "Specify in Notes"],                'art-001',    ['dex', ['dex', 'int']], SKILL_ACTION_COMPLEX, [144], initialValueJson.s['art-001']),
-					'art-002':    createSkill(["Art", "Specify in Notes"],                'art-002',    ['dex', ['dex', 'int']], SKILL_ACTION_COMPLEX, [144], initialValueJson.s['art-002']),
-					'art-003':    createSkill(["Art", "Specify in Notes"],                'art-003',    ['dex', ['dex', 'int']], SKILL_ACTION_COMPLEX, [144], initialValueJson.s['art-003']),
-					'art-004':    createSkill(["Art", "Specify in Notes"],                'art-004',    ['dex', ['dex', 'int']], SKILL_ACTION_COMPLEX, [144], initialValueJson.s['art-004']),
+					'art-000':    createSkill(["Art", null],                              'art-000',    ['dex', ['dex', 'int']], SKILL_ACTION_COMPLEX, [144], initialValueJson.s['art-000']),
+					'art-001':    createSkill(["Art", null],                              'art-001',    ['dex', ['dex', 'int']], SKILL_ACTION_COMPLEX, [144], initialValueJson.s['art-001']),
+					'art-002':    createSkill(["Art", null],                              'art-002',    ['dex', ['dex', 'int']], SKILL_ACTION_COMPLEX, [144], initialValueJson.s['art-002']),
+					'art-003':    createSkill(["Art", null],                              'art-003',    ['dex', ['dex', 'int']], SKILL_ACTION_COMPLEX, [144], initialValueJson.s['art-003']),
+					'art-004':    createSkill(["Art", null],                              'art-004',    ['dex', ['dex', 'int']], SKILL_ACTION_COMPLEX, [144], initialValueJson.s['art-004']),
 					'artill':     createSkill(["Artillery"],                              'arti',       ['int', 'wil'],          SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['artill']),
-					'career-000': createSkill(["Career", "Specify in Notes"],             'career-000', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['career-000']),
-					'career-001': createSkill(["Career", "Specify in Notes"],             'career-001', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['career-001']),
-					'career-002': createSkill(["Career", "Specify in Notes"],             'career-002', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['career-002']),
-					'career-003': createSkill(["Career", "Specify in Notes"],             'career-003', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['career-003']),
-					'career-004': createSkill(["Career", "Specify in Notes"],             'career-004', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['career-004']),
+					'career-000': createSkill(["Career", null],                           'career-000', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['career-000']),
+					'career-001': createSkill(["Career", null],                           'career-001', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['career-001']),
+					'career-002': createSkill(["Career", null],                           'career-002', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['career-002']),
+					'career-003': createSkill(["Career", null],                           'career-003', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['career-003']),
+					'career-004': createSkill(["Career", null],                           'career-004', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['career-004']),
 					'climbi':     createSkill(["Climbing"],                               'climbi',     ['dex'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['climbi']),
 					'commun-bla': createSkill(["Communications", "Black Box"],            'commun-bla', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['commun-bla']),
 					'commun-con': createSkill(["Communications", "Conventional"],         'commun-con', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['commun-con']),
@@ -859,18 +879,18 @@
 					'gunner-sea': createSkill(["Gunnery", "Sea Vehicle"],                 'gunner-sea', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [147], initialValueJson.s['gunner-sea']),
 					'gunner-spa': createSkill(["Gunnery", "Spacecraft"],                  'gunner-spa', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [147], initialValueJson.s['gunner-spa']),
 					'gunner-tur': createSkill(["Gunnery", "Turret"],                      'gunner-tur', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [147], initialValueJson.s['gunner-tur']),
-					'intere-000': createSkill(["Interest", "Specify in Notes"],           'intere-000', ['int', ['int', 'wil']], SKILL_ACTION_COMPLEX, [147], initialValueJson.s['intere-000']),
-					'intere-001': createSkill(["Interest", "Specify in Notes"],           'intere-001', ['int', ['int', 'wil']], SKILL_ACTION_COMPLEX, [147], initialValueJson.s['intere-001']),
-					'intere-002': createSkill(["Interest", "Specify in Notes"],           'intere-002', ['int', ['int', 'wil']], SKILL_ACTION_COMPLEX, [147], initialValueJson.s['intere-002']),
-					'intere-003': createSkill(["Interest", "Specify in Notes"],           'intere-003', ['int', ['int', 'wil']], SKILL_ACTION_COMPLEX, [147], initialValueJson.s['intere-003']),
-					'intere-004': createSkill(["Interest", "Specify in Notes"],           'intere-004', ['int', ['int', 'wil']], SKILL_ACTION_COMPLEX, [147], initialValueJson.s['intere-004']),
+					'intere-000': createSkill(["Interest", null],                         'intere-000', ['int', ['int', 'wil']], SKILL_ACTION_COMPLEX, [147], initialValueJson.s['intere-000']),
+					'intere-001': createSkill(["Interest", null],                         'intere-001', ['int', ['int', 'wil']], SKILL_ACTION_COMPLEX, [147], initialValueJson.s['intere-001']),
+					'intere-002': createSkill(["Interest", null],                         'intere-002', ['int', ['int', 'wil']], SKILL_ACTION_COMPLEX, [147], initialValueJson.s['intere-002']),
+					'intere-003': createSkill(["Interest", null],                         'intere-003', ['int', ['int', 'wil']], SKILL_ACTION_COMPLEX, [147], initialValueJson.s['intere-003']),
+					'intere-004': createSkill(["Interest", null],                         'intere-004', ['int', ['int', 'wil']], SKILL_ACTION_COMPLEX, [147], initialValueJson.s['intere-004']),
 					'interr':     createSkill(["Interrogation"],                          'interr',     ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [148], initialValueJson.s['interr']),
 					'invest':     createSkill(["Investigation"],                          'invest',     ['int', 'wil'],          SKILL_ACTION_COMPLEX, [148], initialValueJson.s['invest']),
-					'langua-000': createSkill(["Language", "Specify in Notes"],           'langua-000', ['int', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['langua-000']),
-					'langua-001': createSkill(["Language", "Specify in Notes"],           'langua-001', ['int', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['langua-001']),
-					'langua-002': createSkill(["Language", "Specify in Notes"],           'langua-002', ['int', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['langua-002']),
-					'langua-003': createSkill(["Language", "Specify in Notes"],           'langua-003', ['int', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['langua-003']),
-					'langua-004': createSkill(["Language", "Specify in Notes"],           'langua-004', ['int', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['langua-004']),
+					'langua-000': createSkill(["Language", null],                         'langua-000', ['int', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['langua-000']),
+					'langua-001': createSkill(["Language", null],                         'langua-001', ['int', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['langua-001']),
+					'langua-002': createSkill(["Language", null],                         'langua-002', ['int', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['langua-002']),
+					'langua-003': createSkill(["Language", null],                         'langua-003', ['int', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['langua-003']),
+					'langua-004': createSkill(["Language", null],                         'langua-004', ['int', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['langua-004']),
 					'leader':     createSkill(["Leadership"],                             'leader',     ['wil', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['leader']),
 					'martia':     createSkill(["Martial Arts"],                           'martia',     ['rfl', ['rfl', 'dex']], SKILL_ACTION_SIMPLE,  [149], initialValueJson.s['martia']),
 					'medtec-gen': createSkill(["MedTech", "General"],                     'medtec-gen', ['int'],                 SKILL_ACTION_SIMPLE,  [149], initialValueJson.s['medtec-gen']),
@@ -892,17 +912,17 @@
 					'presti-pic': createSkill(["Prestidigitation", "Pick Pocket"],        'presti-pic', ['dex', ['rfl', 'dex']], SKILL_ACTION_SIMPLE,  [152], initialValueJson.s['presti-pic']),
 					'presti-qui': createSkill(["Prestidigitation", "Quickdraw"],          'presti-qui', ['dex', ['rfl', 'dex']], SKILL_ACTION_SIMPLE,  [152], initialValueJson.s['presti-qui']),
 					'presti-sle': createSkill(["Prestidigitation", "Sleight of Hand"],    'presti-sle', ['dex', ['rfl', 'dex']], SKILL_ACTION_SIMPLE,  [152], initialValueJson.s['presti-sle']),
-					'protoc-000': createSkill(["Protocol", "Specify in Notes"],           'protoc-000', ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [152], initialValueJson.s['protoc-000']),
-					'protoc-001': createSkill(["Protocol", "Specify in Notes"],           'protoc-001', ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [152], initialValueJson.s['protoc-001']),
-					'protoc-002': createSkill(["Protocol", "Specify in Notes"],           'protoc-002', ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [152], initialValueJson.s['protoc-002']),
-					'protoc-003': createSkill(["Protocol", "Specify in Notes"],           'protoc-003', ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [152], initialValueJson.s['protoc-003']),
-					'protoc-004': createSkill(["Protocol", "Specify in Notes"],           'protoc-004', ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [152], initialValueJson.s['protoc-004']),
+					'protoc-000': createSkill(["Protocol", null],                         'protoc-000', ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [152], initialValueJson.s['protoc-000']),
+					'protoc-001': createSkill(["Protocol", null],                         'protoc-001', ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [152], initialValueJson.s['protoc-001']),
+					'protoc-002': createSkill(["Protocol", null],                         'protoc-002', ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [152], initialValueJson.s['protoc-002']),
+					'protoc-003': createSkill(["Protocol", null],                         'protoc-003', ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [152], initialValueJson.s['protoc-003']),
+					'protoc-004': createSkill(["Protocol", null],                         'protoc-004', ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [152], initialValueJson.s['protoc-004']),
 					'runnin':     createSkill(["Running"],                                'runnin',     ['rfl'],                 SKILL_ACTION_SIMPLE,  [153], initialValueJson.s['runnin']),
-					'scienc-000': createSkill(["Science", "Specify in Notes"],            'scienc-000', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [153], initialValueJson.s['scienc-000']),
-					'scienc-001': createSkill(["Science", "Specify in Notes"],            'scienc-001', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [153], initialValueJson.s['scienc-001']),
-					'scienc-002': createSkill(["Science", "Specify in Notes"],            'scienc-002', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [153], initialValueJson.s['scienc-002']),
-					'scienc-003': createSkill(["Science", "Specify in Notes"],            'scienc-003', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [153], initialValueJson.s['scienc-003']),
-					'scienc-004': createSkill(["Science", "Specify in Notes"],            'scienc-004', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [153], initialValueJson.s['scienc-004']),
+					'scienc-000': createSkill(["Science", null],                          'scienc-000', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [153], initialValueJson.s['scienc-000']),
+					'scienc-001': createSkill(["Science", null],                          'scienc-001', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [153], initialValueJson.s['scienc-001']),
+					'scienc-002': createSkill(["Science", null],                          'scienc-002', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [153], initialValueJson.s['scienc-002']),
+					'scienc-003': createSkill(["Science", null],                          'scienc-003', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [153], initialValueJson.s['scienc-003']),
+					'scienc-004': createSkill(["Science", null],                          'scienc-004', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [153], initialValueJson.s['scienc-004']),
 					'sensor':     createSkill(["Sensor Operations"],                      'sensor',     ['int', 'wil'],          SKILL_ACTION_SIMPLE,  [153], initialValueJson.s['sensor']),
 					'smalla':     createSkill(["Small Arms"],                             'smalla',     ['dex'],                 SKILL_ACTION_SIMPLE,  [153], initialValueJson.s['smalla']),
 					'stealt':     createSkill(["Stealth"],                                'stealt',     ['rfl', 'int'],          SKILL_ACTION_SIMPLE,  [154], initialValueJson.s['stealt']),
@@ -912,11 +932,11 @@
 					'suppor':     createSkill(["Support Weapons"],                        'suppor',     ['dex'],                 SKILL_ACTION_SIMPLE,  [154], initialValueJson.s['suppor']),
 					'surger-gen': createSkill(["Surgery", "General"],                     'surger-gen', ['dex', 'int'],          SKILL_ACTION_COMPLEX, [155], initialValueJson.s['surger-gen']),
 					'surger-vet': createSkill(["Surgery", "Veterinary"],                  'surger-vet', ['dex', 'int'],          SKILL_ACTION_COMPLEX, [155], initialValueJson.s['surger-vet']),
-					'surviv-000': createSkill(["Survival", "Specify in Notes"],           'surviv-000', ['bod', 'int'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['surviv-000']),
-					'surviv-001': createSkill(["Survival", "Specify in Notes"],           'surviv-001', ['bod', 'int'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['surviv-001']),
-					'surviv-002': createSkill(["Survival", "Specify in Notes"],           'surviv-002', ['bod', 'int'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['surviv-002']),
-					'surviv-003': createSkill(["Survival", "Specify in Notes"],           'surviv-003', ['bod', 'int'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['surviv-003']),
-					'surviv-004': createSkill(["Survival", "Specify in Notes"],           'surviv-004', ['bod', 'int'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['surviv-004']),
+					'surviv-000': createSkill(["Survival", null],                         'surviv-000', ['bod', 'int'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['surviv-000']),
+					'surviv-001': createSkill(["Survival", null],                         'surviv-001', ['bod', 'int'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['surviv-001']),
+					'surviv-002': createSkill(["Survival", null],                         'surviv-002', ['bod', 'int'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['surviv-002']),
+					'surviv-003': createSkill(["Survival", null],                         'surviv-003', ['bod', 'int'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['surviv-003']),
+					'surviv-004': createSkill(["Survival", null],                         'surviv-004', ['bod', 'int'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['surviv-004']),
 					'swimmi':     createSkill(["Swimming"],                               'swimmi',     ['str'],                 SKILL_ACTION_SIMPLE,  [156], initialValueJson.s['swimmi']),
 					'tactic-air': createSkill(["Tactics", "Air"],                         'tactic-air', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['tactic-air']),
 					'tactic-inf': createSkill(["Tactics", "Infantry"],                    'tactic-inf', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['tactic-inf']),
