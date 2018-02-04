@@ -9,28 +9,39 @@
 				cursor: pointer;
 				font-size: 20px;
 			}
+			.input-xp {
+				width: 4em;
+			}
 		</style>
 		<title>Battletech - A Time of War Character Sheet by Nebu Pookins</title>
 	</head>
 	<body>
 		<div class="container">
 			<form>
-				<div class="form-group">
+				<div class="form-group d-none d-lg-block">
 					<label for="pdfLink">PDF Rulebook URL (e.g. "file:///D:/A Time of War.pdf")</label>
 					<input type="text" class="form-control" id="pdfLink" placeholder="file:///D:/A Time of War.pdf"/>
 				</div>
 			</form>
 			<h1>Experience</h1>
-			<form>
+			<form class="form-inline">
 				<div class="row">
-					<div class="col"><label for="xptotals-attributes">Attributes:</label></div>
-					<div class="col"><input type="number" class="form-control" id="xptotals-attributes" value="0" readonly /></div>
-					<div class="col">Traits:</div>
-					<div class="col"><input type="number" class="form-control" id="xptotals-traits" value="0" readonly /></div>
-					<div class="col">Skills:</div>
-					<div class="col"><input type="number" class="form-control" id="xptotals-skills" value="0" readonly /></div>
-					<div class="col">Total:</div>
-					<div class="col"><input type="number" class="form-control" id="xptotals-totals" value="0" readonly /></div>
+					<div class="col">
+						<label for="xptotals-attributes">Attributes:</label>
+						<input type="number" class="form-control input-xp" id="xptotals-attributes" value="0" readonly />
+					</div>
+					<div class="col">
+						<label for="xptotals-traits">Traits:</label>
+						<input type="number" class="form-control input-xp" id="xptotals-traits" value="0" readonly />
+					</div>
+					<div class="col">
+						<label for="xptotals-skills">Skills:</label>
+						<input type="number" class="form-control input-xp" id="xptotals-skills" value="0" readonly />
+					</div>
+					<div class="col">
+						<label for="xptotals-totals">Total:</label>
+						<input type="number" class="form-control input-xp" id="xptotals-totals" value="0" readonly />
+					</div>
 				</div>
 			</form>
 			<h1>Attributes</h1>
@@ -38,7 +49,7 @@
 				<table class="table table-sm" id="table-attributes">
 					<thead>
 						<tr>
-							<th>Attribute</th><th>XP</th><th>Score</th><th>Link Bonus</th><th>Page Ref</th><th>Roll</th>
+							<th>Roll</th><th>Attribute</th><th>XP</th><th>Score</th><th>Link Mod.</th><th class="d-none d-lg-block">Page Ref</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -50,7 +61,7 @@
 				<table class="table table-sm" id="table-traits">
 					<thead>
 						<tr>
-							<th>Trait</th><th>Notes</th><th>XP</th><th>Trait Points</th><th>Page Ref</th>
+							<th>Trait</th><th>Notes</th><th>XP</th><th>Trait Points</th><th class="d-none d-lg-block">Page Ref</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -66,7 +77,7 @@
 				<table class="table table-sm" id="table-skills">
 					<thead>
 						<tr>
-							<th>Skill</th><th>Notes</th><th>XP</th><th>Level</th><th>Link</th><th>TN/C</th><th>Page Ref</th><th>Roll</th>
+							<th>Roll</th><th>Skill</th><th>Notes</th><th>XP</th><th>Level</th><th>Link</th><th>TN/C</th><th class="d-none d-lg-block">Page Ref</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -461,20 +472,20 @@
 				function createAttribute(attrCode, pageRef, initialValue) {
 					const $tbody = $tableAttributes.find('tbody');
 					const $tr = $('<tr>');
+					const $tdRoll = $(`<td class="roll-dice">🎲</td>`)
 					const $tdLabel = $(`<td><label for="attribute-${attrCode}-xp">${attrCode.toUpperCase()}</label></td>`);
-					const $inputXp = $(`<input type="number" class="form-control" id="attribute-${attrCode}-xp" min="100" value="${initialValue}" />`);
+					const $inputXp = $(`<input type="number" class="form-control input-xp" id="attribute-${attrCode}-xp" min="100" value="${initialValue}" />`);
 					const $tdXp = $('<td>');
 					$tdXp.append($inputXp);
 					const $tdScore = $('<td>1</td>');
 					const $tdLinkbonus = $('<td>0</td>');
-					const $tdPageref = $(`<td><span class="pageRef" data-page="${pageRef}">${pageRef}</span></td>`);
-					const $tdRoll = $(`<td class="roll-dice">🎲</td>`)
+					const $tdPageref = $(`<td class="d-none d-lg-block"><span class="pageRef" data-page="${pageRef}">${pageRef}</span></td>`);
+					$tr.append($tdRoll);
 					$tr.append($tdLabel);
 					$tr.append($tdXp);
 					$tr.append($tdScore);
 					$tr.append($tdLinkbonus);
 					$tr.append($tdPageref);
-					$tr.append($tdRoll);
 					$tbody.append($tr);
 					const attributeXpProperty = formElementToProperty($inputXp);
 					const attributeScoreProperty = attributeXpProperty.map(xpToAttributeLevel);
@@ -539,15 +550,15 @@
 					const $tbody = $tableTraits.find('tbody');
 					const $tr = $('<tr>');
 					const $tdLabel = $(`<td><label for="trait-${id}">${name}</label></td>`);
-					const $inputNotes = $(`<input type="text"/>`);
+					const $inputNotes = $(`<input type="text" class="form-control" type="text"/>`);
 					$inputNotes.val(initialValue.n);
 					const $tdNotes = $(`<td>`);
 					$tdNotes.append($inputNotes);
-					const $inputXp = $(`<input type="number" class="form-control" id="trait-${id}" min="${minTp * 100}" max="${maxTp * 100}" value="${initialValue.x}" />`);
+					const $inputXp = $(`<input type="number" class="form-control input-xp" id="trait-${id}" min="${minTp * 100}" max="${maxTp * 100}" value="${initialValue.x}" />`);
 					const $tdXp = $(`<td>`);
 					$tdXp.append($inputXp);
 					const $tdTp = $(`<td>0</td>`);
-					const $tdPageref = $(`<td>`);
+					const $tdPageref = $(`<td class="d-none d-lg-block">`);
 					$tdPageref.append(
 						pageRefs.map((page) => `<span class="pageRef" data-page="${page}">${page}</span>`)
 							.join(", ")
@@ -621,7 +632,11 @@
 					inFo2: createTrait("In For Life", 'inForLife2', [-3, 0], [120], initialValueJson.t.inFo2),
 					lost1: createTrait("Lost Limb", 'lostLimb1', [-5, -4, -3, -2, -1, 0], [121], initialValueJson.t.lost1),
 					lost2: createTrait("Lost Limb", 'lostLimb2', [-5, -4, -3, -2, -1, 0], [121], initialValueJson.t.lost2),
-					natAc: createTrait("Natural Aptitude - Acrobatics", 'naturalAcrobatics', [0, 3], [121], initialValueJson.t.natAc),
+					natAcroba: createTrait("Natural Aptitude - Acrobatics", 'naturalAcrobatics', [0, 3], [121], initialValueJson.t.natAcroba),
+					natActing: createTrait("Natural Aptitude - Acting", 'naturalActing', [0, 3], [121], initialValueJson.t.natActing),
+					//TODO add the other natural aptitudes here
+					natComput: createTrait("Natural Aptitude - Computers", 'naturalComputers', [0, 3], [121], initialValueJson.t.natComput),
+					natPiloti: createTrait("Natural Aptitude - Piloting", 'naturalPiloting', [0, 3], [121], initialValueJson.t.natPiloti),
 					patie: createTrait("Patient, Impatient", 'patient', [-1, 0, 1], [119], initialValueJson.t.patie),
 					techE: createTrait("Tech Empathy, Gremlins", 'techEmpathy', [-3, 0, 3], [118], initialValueJson.t.techE), //TODO: tech empathy pageref
 					tough: createTrait("Toughness, Glassjaw", 'toughness', [-3, 0, 3], [118], initialValueJson.t.tough), //TODO: toughness pageref
@@ -649,24 +664,25 @@
 
 					const $tbody = $tableSkills.find('tbody');
 					const $tr = $('<tr>');
+					const $tdRoll = $(`<td class="roll-dice">🎲</td>`)
 					const $label = $(`<label for="skill-${id}"></label>`);
 					const $tdLabel = $(`<td>`);
 					$tdLabel.append($label);
 					const $inputNotes = $(`<input type="text" class="form-control" value="${initialValue.n}"/>`);
 					const $tdNotes = $(`<td>`);
 					$tdNotes.append($inputNotes);
-					const $inputXp = $(`<input type="number" class="form-control" id="skill-${id}-xp" min="0" value="${initialValue.x}"/>`);
+					const $inputXp = $(`<input type="number" class="form-control input-xp" id="skill-${id}-xp" min="0" value="${initialValue.x}"/>`);
 					const $tdXp = $('<td>');
 					const $tdLevel = $('<td>');
 					const $tdLink = $('<td>');
 					const $tdTarget = $('<td>');
-					const $tdPageRef = $('<td>');
-					const $tdRoll = $(`<td class="roll-dice">🎲</td>`)
+					const $tdPageRef = $('<td class="d-none d-lg-block">');
 					$tdPageRef.append(
 						pageRefs.map((page) => `<span class="pageRef" data-page="${page}">${page}</span>`)
 							.join(", ")
 					);
 					$tdXp.append($inputXp);
+					$tr.append($tdRoll);
 					$tr.append($tdLabel);
 					$tr.append($tdNotes);
 					$tr.append($tdXp);
@@ -674,7 +690,6 @@
 					$tr.append($tdLink);
 					$tr.append($tdTarget);
 					$tr.append($tdPageRef);
-					$tr.append($tdRoll);
 					$tbody.append($tr);
 					const skillXpProperty = formElementToProperty($inputXp);
 					const skillNoteProperty = formElementToProperty($inputNotes);
@@ -836,128 +851,140 @@
 						notes: skillNoteProperty
 					}
 				}
-				const skillProperties = {
-					'acroba-fre': createSkill(["Acrobatics", "Freefall"],                 'acroba-fre', ['rfl'],                 SKILL_ACTION_SIMPLE,  [142], initialValueJson.s['acroba-fre']),
-					'acroba-gym': createSkill(["Acrobatics", "Gymnastics"],               'acroba-gym', ['rfl'],                 SKILL_ACTION_SIMPLE,  [142], initialValueJson.s['acroba-gym']),
-					'acting':     createSkill(["Acting"],                                 'acting',     ['cha'],                 SKILL_ACTION_COMPLEX, [142], initialValueJson.s['acting']),
-					'admini':     createSkill(["Administration"],                         'admini',     ['int', 'wil'],          SKILL_ACTION_SIMPLE,  [143], initialValueJson.s['admini']),
-					'animal-her': createSkill(["Animal Handling", "Herding"],             'animal-her', ['wil'],                 SKILL_ACTION_SIMPLE,  [143], initialValueJson.s['animal-her']),
-					'animal-rid': createSkill(["Animal Handling", "Riding"],              'animal-rid', ['wil'],                 SKILL_ACTION_SIMPLE,  [143], initialValueJson.s['animal-rid']),
-					'animal-tra': createSkill(["Animal Handling", "Training"],            'animal-tra', ['wil'],                 SKILL_ACTION_SIMPLE,  [143], initialValueJson.s['animal-tra']),
-					'apprai':     createSkill(["Appraisal"],                              'apprai',     ['int'],                 SKILL_ACTION_COMPLEX, [143], initialValueJson.s['apprai']),
-					'archer':     createSkill(["Archery"],                                'archer',     ['dex'],                 SKILL_ACTION_SIMPLE,  [143], initialValueJson.s['archer']),
-					'art-000':    createSkill(["Art", null],                              'art-000',    ['dex', ['dex', 'int']], SKILL_ACTION_COMPLEX, [144], initialValueJson.s['art-000']),
-					'art-001':    createSkill(["Art", null],                              'art-001',    ['dex', ['dex', 'int']], SKILL_ACTION_COMPLEX, [144], initialValueJson.s['art-001']),
-					'art-002':    createSkill(["Art", null],                              'art-002',    ['dex', ['dex', 'int']], SKILL_ACTION_COMPLEX, [144], initialValueJson.s['art-002']),
-					'art-003':    createSkill(["Art", null],                              'art-003',    ['dex', ['dex', 'int']], SKILL_ACTION_COMPLEX, [144], initialValueJson.s['art-003']),
-					'art-004':    createSkill(["Art", null],                              'art-004',    ['dex', ['dex', 'int']], SKILL_ACTION_COMPLEX, [144], initialValueJson.s['art-004']),
-					'artill':     createSkill(["Artillery"],                              'arti',       ['int', 'wil'],          SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['artill']),
-					'career-000': createSkill(["Career", null],                           'career-000', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['career-000']),
-					'career-001': createSkill(["Career", null],                           'career-001', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['career-001']),
-					'career-002': createSkill(["Career", null],                           'career-002', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['career-002']),
-					'career-003': createSkill(["Career", null],                           'career-003', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['career-003']),
-					'career-004': createSkill(["Career", null],                           'career-004', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['career-004']),
-					'climbi':     createSkill(["Climbing"],                               'climbi',     ['dex'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['climbi']),
-					'commun-bla': createSkill(["Communications", "Black Box"],            'commun-bla', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['commun-bla']),
-					'commun-con': createSkill(["Communications", "Conventional"],         'commun-con', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['commun-con']),
-					'commun-hyp': createSkill(["Communications", "Hyperpulse Generator"], 'commun-hyp', ['int'],                 SKILL_ACTION_SIMPLE,  [144], initialValueJson.s['commun-hyp']),
-					'comput':     createSkill(["Computers"],                              'comput',     ['int', ['dex', 'int']], SKILL_ACTION_COMPLEX, [145], initialValueJson.s['comput']),
-					'crypto':     createSkill(["Cryptography"],                           'crypto',     ['int', 'wil'],          SKILL_ACTION_COMPLEX, [145], initialValueJson.s['crypto']),
-					'demoli':     createSkill(["Demolitions"],                            'demoli',     ['dex', 'int'],          SKILL_ACTION_COMPLEX, [146], initialValueJson.s['demoli']),
-					'disgui':     createSkill(["Disguise"],                               'disgui',     ['cha'],                 SKILL_ACTION_SIMPLE,  [146], initialValueJson.s['disgui']),
-					'drivin-gro': createSkill(["Driving", "Ground Vehicles"],             'drivin-gro', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [146], initialValueJson.s['drivin-gro']),
-					'drivin-rai': createSkill(["Driving", "Rail Vehicles"],               'drivin-rai', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [146], initialValueJson.s['drivin-rai']),
-					'drivin-sea': createSkill(["Driving", "Sea Vehicles"],                'drivin-sea', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [146], initialValueJson.s['drivin-sea']),
-					'escape':     createSkill(["Escape Artist"],                          'escape',     ['str', 'dex'],          SKILL_ACTION_COMPLEX, [147], initialValueJson.s['escape']),
-					'forger':     createSkill(["Forgery"],                                'forger',     ['dex', 'int'],          SKILL_ACTION_SIMPLE,  [147], initialValueJson.s['forger']),
-					'gunner-aer': createSkill(["Gunnery", "Aerospace"],                   'gunner-aer', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [147], initialValueJson.s['gunner-aer']),
-					'gunner-air': createSkill(["Gunnery", "Air Vehicle"],                 'gunner-air', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [147], initialValueJson.s['gunner-air']),
-					'gunner-bat': createSkill(["Gunnery", "Battlesuit"],                  'gunner-bat', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [147], initialValueJson.s['gunner-bat']),
-					'gunner-gro': createSkill(["Gunnery", "Ground Vehicle"],              'gunner-gro', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [147], initialValueJson.s['gunner-gro']),
-					'gunner-mec': createSkill(["Gunnery", "'Mech"],                       'gunner-mec', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [147], initialValueJson.s['gunner-mec']),
-					'gunner-pro': createSkill(["Gunnery", "ProtoMech"],                   'gunner-pro', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [147], initialValueJson.s['gunner-pro']),
-					'gunner-sea': createSkill(["Gunnery", "Sea Vehicle"],                 'gunner-sea', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [147], initialValueJson.s['gunner-sea']),
-					'gunner-spa': createSkill(["Gunnery", "Spacecraft"],                  'gunner-spa', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [147], initialValueJson.s['gunner-spa']),
-					'gunner-tur': createSkill(["Gunnery", "Turret"],                      'gunner-tur', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [147], initialValueJson.s['gunner-tur']),
-					'intere-000': createSkill(["Interest", null],                         'intere-000', ['int', ['int', 'wil']], SKILL_ACTION_COMPLEX, [147], initialValueJson.s['intere-000']),
-					'intere-001': createSkill(["Interest", null],                         'intere-001', ['int', ['int', 'wil']], SKILL_ACTION_COMPLEX, [147], initialValueJson.s['intere-001']),
-					'intere-002': createSkill(["Interest", null],                         'intere-002', ['int', ['int', 'wil']], SKILL_ACTION_COMPLEX, [147], initialValueJson.s['intere-002']),
-					'intere-003': createSkill(["Interest", null],                         'intere-003', ['int', ['int', 'wil']], SKILL_ACTION_COMPLEX, [147], initialValueJson.s['intere-003']),
-					'intere-004': createSkill(["Interest", null],                         'intere-004', ['int', ['int', 'wil']], SKILL_ACTION_COMPLEX, [147], initialValueJson.s['intere-004']),
-					'interr':     createSkill(["Interrogation"],                          'interr',     ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [148], initialValueJson.s['interr']),
-					'invest':     createSkill(["Investigation"],                          'invest',     ['int', 'wil'],          SKILL_ACTION_COMPLEX, [148], initialValueJson.s['invest']),
-					'langua-000': createSkill(["Language", null],                         'langua-000', ['int', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['langua-000']),
-					'langua-001': createSkill(["Language", null],                         'langua-001', ['int', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['langua-001']),
-					'langua-002': createSkill(["Language", null],                         'langua-002', ['int', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['langua-002']),
-					'langua-003': createSkill(["Language", null],                         'langua-003', ['int', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['langua-003']),
-					'langua-004': createSkill(["Language", null],                         'langua-004', ['int', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['langua-004']),
-					'leader':     createSkill(["Leadership"],                             'leader',     ['wil', 'cha'],          SKILL_ACTION_SIMPLE,  [148], initialValueJson.s['leader']),
-					'martia':     createSkill(["Martial Arts"],                           'martia',     ['rfl', ['rfl', 'dex']], SKILL_ACTION_SIMPLE,  [149], initialValueJson.s['martia']),
-					'medtec-gen': createSkill(["MedTech", "General"],                     'medtec-gen', ['int'],                 SKILL_ACTION_SIMPLE,  [149], initialValueJson.s['medtec-gen']),
-					'medtec-vet': createSkill(["MedTech", "Veterinary"],                  'medtec-vet', ['int'],                 SKILL_ACTION_SIMPLE,  [149], initialValueJson.s['medtec-vet']),
-					'meleew':     createSkill(["Melee Weapons"],                          'meleew',     ['dex', ['rfl', 'dex']], SKILL_ACTION_SIMPLE,  [149], initialValueJson.s['meleew']),
-					'naviga-air': createSkill(["Navigation", "Air"],                      'naviga-air', ['int'],                 SKILL_ACTION_SIMPLE,  [150], initialValueJson.s['naviga-air']),
-					'naviga-gro': createSkill(["Navigation", "Ground"],                   'naviga-gro', ['int'],                 SKILL_ACTION_SIMPLE,  [150], initialValueJson.s['naviga-gro']),
-					'naviga-kfj': createSkill(["Navigation", "K-F Jump"],                 'naviga-kfj', ['int'],                 SKILL_ACTION_SIMPLE,  [150], initialValueJson.s['naviga-kfj']),
-					'naviga-sea': createSkill(["Navigation", "Sea"],                      'naviga-sea', ['int'],                 SKILL_ACTION_SIMPLE,  [150], initialValueJson.s['naviga-sea']),
-					'naviga-spa': createSkill(["Navigation", "Space"],                    'naviga-spa', ['int'],                 SKILL_ACTION_SIMPLE,  [150], initialValueJson.s['naviga-spa']),
-					'negoti':     createSkill(["Negotiation"],                            'negoti',     ['cha'],                 SKILL_ACTION_COMPLEX, [150], initialValueJson.s['negoti']),
-					'percep':     createSkill(["Perception"],                             'percep',     ['int'],                 SKILL_ACTION_SIMPLE,  [151], initialValueJson.s['percep']),
-					'piloti-aer': createSkill(["Piloting", "Aerospace"],                  'piloti-aer', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [151], initialValueJson.s['piloti-aer']),
-					'piloti-air': createSkill(["Piloting", "Air Vehicle"],                'piloti-air', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [151], initialValueJson.s['piloti-air']),
-					'piloti-bat': createSkill(["Piloting", "Battlesuit"],                 'piloti-bat', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [151], initialValueJson.s['piloti-bat']),
-					'piloti-mec': createSkill(["Piloting", "'Mech"],                      'piloti-mec', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [151], initialValueJson.s['piloti-mec']),
-					'piloti-pro': createSkill(["Piloting", "ProtoMech"],                  'piloti-pro', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [151], initialValueJson.s['piloti-pro']),
-					'piloti-spa': createSkill(["Piloting", "Spacecraft"],                 'piloti-spa', ['rfl', 'dex'],          SKILL_ACTION_SIMPLE,  [151], initialValueJson.s['piloti-spa']),
-					'presti-pic': createSkill(["Prestidigitation", "Pick Pocket"],        'presti-pic', ['dex', ['rfl', 'dex']], SKILL_ACTION_SIMPLE,  [152], initialValueJson.s['presti-pic']),
-					'presti-qui': createSkill(["Prestidigitation", "Quickdraw"],          'presti-qui', ['dex', ['rfl', 'dex']], SKILL_ACTION_SIMPLE,  [152], initialValueJson.s['presti-qui']),
-					'presti-sle': createSkill(["Prestidigitation", "Sleight of Hand"],    'presti-sle', ['dex', ['rfl', 'dex']], SKILL_ACTION_SIMPLE,  [152], initialValueJson.s['presti-sle']),
-					'protoc-000': createSkill(["Protocol", null],                         'protoc-000', ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [152], initialValueJson.s['protoc-000']),
-					'protoc-001': createSkill(["Protocol", null],                         'protoc-001', ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [152], initialValueJson.s['protoc-001']),
-					'protoc-002': createSkill(["Protocol", null],                         'protoc-002', ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [152], initialValueJson.s['protoc-002']),
-					'protoc-003': createSkill(["Protocol", null],                         'protoc-003', ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [152], initialValueJson.s['protoc-003']),
-					'protoc-004': createSkill(["Protocol", null],                         'protoc-004', ['wil', 'cha'],          SKILL_ACTION_COMPLEX, [152], initialValueJson.s['protoc-004']),
-					'runnin':     createSkill(["Running"],                                'runnin',     ['rfl'],                 SKILL_ACTION_SIMPLE,  [153], initialValueJson.s['runnin']),
-					'scienc-000': createSkill(["Science", null],                          'scienc-000', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [153], initialValueJson.s['scienc-000']),
-					'scienc-001': createSkill(["Science", null],                          'scienc-001', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [153], initialValueJson.s['scienc-001']),
-					'scienc-002': createSkill(["Science", null],                          'scienc-002', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [153], initialValueJson.s['scienc-002']),
-					'scienc-003': createSkill(["Science", null],                          'scienc-003', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [153], initialValueJson.s['scienc-003']),
-					'scienc-004': createSkill(["Science", null],                          'scienc-004', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [153], initialValueJson.s['scienc-004']),
-					'sensor':     createSkill(["Sensor Operations"],                      'sensor',     ['int', 'wil'],          SKILL_ACTION_SIMPLE,  [153], initialValueJson.s['sensor']),
-					'smalla':     createSkill(["Small Arms"],                             'smalla',     ['dex'],                 SKILL_ACTION_SIMPLE,  [153], initialValueJson.s['smalla']),
-					'stealt':     createSkill(["Stealth"],                                'stealt',     ['rfl', 'int'],          SKILL_ACTION_SIMPLE,  [154], initialValueJson.s['stealt']),
-					'strate':     createSkill(["Strategy"],                               'strate',     ['int', 'wil'],          SKILL_ACTION_COMPLEX, [154], initialValueJson.s['strate']),
-					'street-fed': createSkill(["Streetwise", "Federated Suns"],           'street-fed', ['cha'],                 SKILL_ACTION_COMPLEX, [154], initialValueJson.s['street-fed']),
-					'street-out': createSkill(["Streetwise", "Outworlds Alliance"],       'street-out', ['cha'],                 SKILL_ACTION_COMPLEX, [154], initialValueJson.s['street-out']),
-					'suppor':     createSkill(["Support Weapons"],                        'suppor',     ['dex'],                 SKILL_ACTION_SIMPLE,  [154], initialValueJson.s['suppor']),
-					'surger-gen': createSkill(["Surgery", "General"],                     'surger-gen', ['dex', 'int'],          SKILL_ACTION_COMPLEX, [155], initialValueJson.s['surger-gen']),
-					'surger-vet': createSkill(["Surgery", "Veterinary"],                  'surger-vet', ['dex', 'int'],          SKILL_ACTION_COMPLEX, [155], initialValueJson.s['surger-vet']),
-					'surviv-000': createSkill(["Survival", null],                         'surviv-000', ['bod', 'int'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['surviv-000']),
-					'surviv-001': createSkill(["Survival", null],                         'surviv-001', ['bod', 'int'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['surviv-001']),
-					'surviv-002': createSkill(["Survival", null],                         'surviv-002', ['bod', 'int'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['surviv-002']),
-					'surviv-003': createSkill(["Survival", null],                         'surviv-003', ['bod', 'int'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['surviv-003']),
-					'surviv-004': createSkill(["Survival", null],                         'surviv-004', ['bod', 'int'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['surviv-004']),
-					'swimmi':     createSkill(["Swimming"],                               'swimmi',     ['str'],                 SKILL_ACTION_SIMPLE,  [156], initialValueJson.s['swimmi']),
-					'tactic-air': createSkill(["Tactics", "Air"],                         'tactic-air', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['tactic-air']),
-					'tactic-inf': createSkill(["Tactics", "Infantry"],                    'tactic-inf', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['tactic-inf']),
-					'tactic-lan': createSkill(["Tactics", "Land"],                        'tactic-lan', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['tactic-lan']),
-					'tactic-sea': createSkill(["Tactics", "Sea"],                         'tactic-sea', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['tactic-sea']),
-					'tactic-spa': createSkill(["Tactics", "Space"],                       'tactic-spa', ['int', 'wil'],          SKILL_ACTION_COMPLEX, [156], initialValueJson.s['tactic-spa']),
-					'techni-aer': createSkill(["Technician", "Aeronautics"],              'techni-aer', ['dex', 'int'],          SKILL_ACTION_COMPLEX, [157], initialValueJson.s['techni-aer']),
-					'techni-cyb': createSkill(["Technician", "Cybernetics"],              'techni-cyb', ['dex', 'int'],          SKILL_ACTION_COMPLEX, [157], initialValueJson.s['techni-cyb']),
-					'techni-ele': createSkill(["Technician", "Electronic"],               'techni-ele', ['dex', 'int'],          SKILL_ACTION_COMPLEX, [157], initialValueJson.s['techni-ele']),
-					'techni-jet': createSkill(["Technician", "Jets"],                     'techni-jet', ['dex', 'int'],          SKILL_ACTION_COMPLEX, [157], initialValueJson.s['techni-jet']),
-					'techni-mec': createSkill(["Technician", "Mechanical"],               'techni-mec', ['dex', 'int'],          SKILL_ACTION_COMPLEX, [157], initialValueJson.s['techni-mec']),
-					'techni-myo': createSkill(["Technician", "Myomer"],                   'techni-myo', ['dex', 'int'],          SKILL_ACTION_COMPLEX, [157], initialValueJson.s['techni-myo']),
-					'techni-nuc': createSkill(["Technician", "Nuclear"],                  'techni-nuc', ['dex', 'int'],          SKILL_ACTION_COMPLEX, [157], initialValueJson.s['techni-nuc']),
-					'techni-wea': createSkill(["Technician", "Weapons"],                  'techni-wea', ['dex', 'int'],          SKILL_ACTION_COMPLEX, [157], initialValueJson.s['techni-wea']),
-					'thrown-bla': createSkill(["Thrown Weapons", "Blades"],               'thrown-bla', ['dex'],                 SKILL_ACTION_SIMPLE,  [158], initialValueJson.s['thrown-bla']),
-					'thrown-blu': createSkill(["Thrown Weapons", "Blunt Weapons"],        'thrown-blu', ['dex'],                 SKILL_ACTION_SIMPLE,  [158], initialValueJson.s['thrown-blu']),
-					'tracki-urb': createSkill(["Tracking", "Urban"],                      'tracki-urb', ['int', 'wil'],          SKILL_ACTION_SIMPLE,  [158], initialValueJson.s['tracki-urb']),
-					'tracki-wil': createSkill(["Tracking", "Wilds"],                      'tracki-wil', ['int', 'wil'],          SKILL_ACTION_SIMPLE,  [158], initialValueJson.s['tracki-wil']),
-					'traini':     createSkill(["Training"],                               'traini',     ['int', 'cha'],          SKILL_ACTION_COMPLEX, [159], initialValueJson.s['traini']),
-					'zerogo':     createSkill(["Zero-G Operations"],                      'zerogo',     ['rfl'],                 SKILL_ACTION_SIMPLE,  [159], initialValueJson.s['zerogo']),
-				};
+
+				const skillProperties = {};
+
+				(function() {
+					function createSkillHelper(shortName, longNames, linkedAttrs, actionRating, pageRef) {
+						skillProperties[shortName] = createSkill(
+							longNames,
+							shortName,
+							linkedAttrs,
+							actionRating == 's' ? SKILL_ACTION_SIMPLE : SKILL_ACTION_COMPLEX,
+							[pageRef],
+							initialValueJson.s[shortName]);
+					}
+					createSkillHelper('acroba-fre', ["Acrobatics", "Freefall"],                 ['rfl'],                 's', 142);
+					createSkillHelper('acroba-gym', ["Acrobatics", "Gymnastics"],               ['rfl'],                 's', 142);
+					createSkillHelper('acting',     ["Acting"],                                 ['cha'],                 'c', 142);
+					createSkillHelper('admini',     ["Administration"],                         ['int', 'wil'],          's', 143);
+					createSkillHelper('animal-her', ["Animal Handling", "Herding"],             ['wil'],                 's', 143);
+					createSkillHelper('animal-rid', ["Animal Handling", "Riding"],              ['wil'],                 's', 143);
+					createSkillHelper('animal-tra', ["Animal Handling", "Training"],            ['wil'],                 's', 143);
+					createSkillHelper('apprai',     ["Appraisal"],                              ['int'],                 'c', 143);
+					createSkillHelper('archer',     ["Archery"],                                ['dex'],                 's', 143);
+					createSkillHelper('art-000',    ["Art", null],                              ['dex', ['dex', 'int']], 'c', 144);
+					createSkillHelper('art-001',    ["Art", null],                              ['dex', ['dex', 'int']], 'c', 144);
+					createSkillHelper('art-002',    ["Art", null],                              ['dex', ['dex', 'int']], 'c', 144);
+					createSkillHelper('art-003',    ["Art", null],                              ['dex', ['dex', 'int']], 'c', 144);
+					createSkillHelper('art-004',    ["Art", null],                              ['dex', ['dex', 'int']], 'c', 144);
+					createSkillHelper('artill',     ["Artillery"],                              ['int', 'wil'],          's', 144);
+					createSkillHelper('career-000', ["Career", null],                           ['int'],                 's', 144);
+					createSkillHelper('career-001', ["Career", null],                           ['int'],                 's', 144);
+					createSkillHelper('career-002', ["Career", null],                           ['int'],                 's', 144);
+					createSkillHelper('career-003', ["Career", null],                           ['int'],                 's', 144);
+					createSkillHelper('career-004', ["Career", null],                           ['int'],                 's', 144);
+					createSkillHelper('climbi',     ["Climbing"],                               ['dex'],                 's', 144);
+					createSkillHelper('commun-bla', ["Communications", "Black Box"],            ['int'],                 's', 144);
+					createSkillHelper('commun-con', ["Communications", "Conventional"],         ['int'],                 's', 144);
+					createSkillHelper('commun-hyp', ["Communications", "Hyperpulse Generator"], ['int'],                 's', 144);
+					createSkillHelper('comput',     ["Computers"],                              ['int', ['dex', 'int']], 'c', 145);
+					createSkillHelper('crypto',     ["Cryptography"],                           ['int', 'wil'],          'c', 145);
+					createSkillHelper('demoli',     ["Demolitions"],                            ['dex', 'int'],          'c', 146);
+					createSkillHelper('disgui',     ["Disguise"],                               ['cha'],                 's', 146);
+					createSkillHelper('drivin-gro', ["Driving", "Ground Vehicles"],             ['rfl', 'dex'],          's', 146);
+					createSkillHelper('drivin-rai', ["Driving", "Rail Vehicles"],               ['rfl', 'dex'],          's', 146);
+					createSkillHelper('drivin-sea', ["Driving", "Sea Vehicles"],                ['rfl', 'dex'],          's', 146);
+					createSkillHelper('escape',     ["Escape Artist"],                          ['str', 'dex'],          'c', 147);
+					createSkillHelper('forger',     ["Forgery"],                                ['dex', 'int'],          's', 147);
+					createSkillHelper('gunner-aer', ["Gunnery", "Aerospace"],                   ['rfl', 'dex'],          's', 147);
+					createSkillHelper('gunner-air', ["Gunnery", "Air Vehicle"],                 ['rfl', 'dex'],          's', 147);
+					createSkillHelper('gunner-bat', ["Gunnery", "Battlesuit"],                  ['rfl', 'dex'],          's', 147);
+					createSkillHelper('gunner-gro', ["Gunnery", "Ground Vehicle"],              ['rfl', 'dex'],          's', 147);
+					createSkillHelper('gunner-mec', ["Gunnery", "'Mech"],                       ['rfl', 'dex'],          's', 147);
+					createSkillHelper('gunner-pro', ["Gunnery", "ProtoMech"],                   ['rfl', 'dex'],          's', 147);
+					createSkillHelper('gunner-sea', ["Gunnery", "Sea Vehicle"],                 ['rfl', 'dex'],          's', 147);
+					createSkillHelper('gunner-spa', ["Gunnery", "Spacecraft"],                  ['rfl', 'dex'],          's', 147);
+					createSkillHelper('gunner-tur', ["Gunnery", "Turret"],                      ['rfl', 'dex'],          's', 147);
+					createSkillHelper('intere-000', ["Interest", null],                         ['int', ['int', 'wil']], 'c', 147);
+					createSkillHelper('intere-001', ["Interest", null],                         ['int', ['int', 'wil']], 'c', 147);
+					createSkillHelper('intere-002', ["Interest", null],                         ['int', ['int', 'wil']], 'c', 147);
+					createSkillHelper('intere-003', ["Interest", null],                         ['int', ['int', 'wil']], 'c', 147);
+					createSkillHelper('intere-004', ["Interest", null],                         ['int', ['int', 'wil']], 'c', 147);
+					createSkillHelper('interr',     ["Interrogation"],                          ['wil', 'cha'],          'c', 148);
+					createSkillHelper('invest',     ["Investigation"],                          ['int', 'wil'],          'c', 148);
+					createSkillHelper('langua-000', ["Language", null],                         ['int', 'cha'],          's', 148);
+					createSkillHelper('langua-001', ["Language", null],                         ['int', 'cha'],          's', 148);
+					createSkillHelper('langua-002', ["Language", null],                         ['int', 'cha'],          's', 148);
+					createSkillHelper('langua-003', ["Language", null],                         ['int', 'cha'],          's', 148);
+					createSkillHelper('langua-004', ["Language", null],                         ['int', 'cha'],          's', 148);
+					createSkillHelper('leader',     ["Leadership"],                             ['wil', 'cha'],          's', 148);
+					createSkillHelper('martia',     ["Martial Arts"],                           ['rfl', ['rfl', 'dex']], 's', 149);
+					createSkillHelper('medtec-gen', ["MedTech", "General"],                     ['int'],                 's', 149);
+					createSkillHelper('medtec-vet', ["MedTech", "Veterinary"],                  ['int'],                 's', 149);
+					createSkillHelper('meleew',     ["Melee Weapons"],                          ['dex', ['rfl', 'dex']], 's', 149);
+					createSkillHelper('naviga-air', ["Navigation", "Air"],                      ['int'],                 's', 150);
+					createSkillHelper('naviga-gro', ["Navigation", "Ground"],                   ['int'],                 's', 150);
+					createSkillHelper('naviga-kfj', ["Navigation", "K-F Jump"],                 ['int'],                 's', 150);
+					createSkillHelper('naviga-sea', ["Navigation", "Sea"],                      ['int'],                 's', 150);
+					createSkillHelper('naviga-spa', ["Navigation", "Space"],                    ['int'],                 's', 150);
+					createSkillHelper('negoti',     ["Negotiation"],                            ['cha'],                 'c', 150);
+					createSkillHelper('percep',     ["Perception"],                             ['int'],                 's', 151);
+					createSkillHelper('piloti-aer', ["Piloting", "Aerospace"],                  ['rfl', 'dex'],          's', 151);
+					createSkillHelper('piloti-air', ["Piloting", "Air Vehicle"],                ['rfl', 'dex'],          's', 151);
+					createSkillHelper('piloti-bat', ["Piloting", "Battlesuit"],                 ['rfl', 'dex'],          's', 151);
+					createSkillHelper('piloti-mec', ["Piloting", "'Mech"],                      ['rfl', 'dex'],          's', 151);
+					createSkillHelper('piloti-pro', ["Piloting", "ProtoMech"],                  ['rfl', 'dex'],          's', 151);
+					createSkillHelper('piloti-spa', ["Piloting", "Spacecraft"],                 ['rfl', 'dex'],          's', 151);
+					createSkillHelper('presti-pic', ["Prestidigitation", "Pick Pocket"],        ['dex', ['rfl', 'dex']], 's', 152);
+					createSkillHelper('presti-qui', ["Prestidigitation", "Quickdraw"],          ['dex', ['rfl', 'dex']], 's', 152);
+					createSkillHelper('presti-sle', ["Prestidigitation", "Sleight of Hand"],    ['dex', ['rfl', 'dex']], 's', 152);
+					createSkillHelper('protoc-000', ["Protocol", null],                         ['wil', 'cha'],          'c', 152);
+					createSkillHelper('protoc-001', ["Protocol", null],                         ['wil', 'cha'],          'c', 152);
+					createSkillHelper('protoc-002', ["Protocol", null],                         ['wil', 'cha'],          'c', 152);
+					createSkillHelper('protoc-003', ["Protocol", null],                         ['wil', 'cha'],          'c', 152);
+					createSkillHelper('protoc-004', ["Protocol", null],                         ['wil', 'cha'],          'c', 152);
+					createSkillHelper('runnin',     ["Running"],                                ['rfl'],                 's', 153);
+					createSkillHelper('scienc-000', ["Science", null],                          ['int', 'wil'],          'c', 153);
+					createSkillHelper('scienc-001', ["Science", null],                          ['int', 'wil'],          'c', 153);
+					createSkillHelper('scienc-002', ["Science", null],                          ['int', 'wil'],          'c', 153);
+					createSkillHelper('scienc-003', ["Science", null],                          ['int', 'wil'],          'c', 153);
+					createSkillHelper('scienc-004', ["Science", null],                          ['int', 'wil'],          'c', 153);
+					createSkillHelper('sensor',     ["Sensor Operations"],                      ['int', 'wil'],          's', 153);
+					createSkillHelper('smalla',     ["Small Arms"],                             ['dex'],                 's', 153);
+					createSkillHelper('stealt',     ["Stealth"],                                ['rfl', 'int'],          's', 154);
+					createSkillHelper('strate',     ["Strategy"],                               ['int', 'wil'],          'c', 154);
+					createSkillHelper('street-fed', ["Streetwise", "Federated Suns"],           ['cha'],                 'c', 154);
+					createSkillHelper('street-out', ["Streetwise", "Outworlds Alliance"],       ['cha'],                 'c', 154);
+					createSkillHelper('suppor',     ["Support Weapons"],                        ['dex'],                 's', 154);
+					createSkillHelper('surger-gen', ["Surgery", "General"],                     ['dex', 'int'],          'c', 155);
+					createSkillHelper('surger-vet', ["Surgery", "Veterinary"],                  ['dex', 'int'],          'c', 155);
+					createSkillHelper('surviv-000', ["Survival", null],                         ['bod', 'int'],          'c', 156);
+					createSkillHelper('surviv-001', ["Survival", null],                         ['bod', 'int'],          'c', 156);
+					createSkillHelper('surviv-002', ["Survival", null],                         ['bod', 'int'],          'c', 156);
+					createSkillHelper('surviv-003', ["Survival", null],                         ['bod', 'int'],          'c', 156);
+					createSkillHelper('surviv-004', ["Survival", null],                         ['bod', 'int'],          'c', 156);
+					createSkillHelper('swimmi',     ["Swimming"],                               ['str'],                 's', 156);
+					createSkillHelper('tactic-air', ["Tactics", "Air"],                         ['int', 'wil'],          'c', 156);
+					createSkillHelper('tactic-inf', ["Tactics", "Infantry"],                    ['int', 'wil'],          'c', 156);
+					createSkillHelper('tactic-lan', ["Tactics", "Land"],                        ['int', 'wil'],          'c', 156);
+					createSkillHelper('tactic-sea', ["Tactics", "Sea"],                         ['int', 'wil'],          'c', 156);
+					createSkillHelper('tactic-spa', ["Tactics", "Space"],                       ['int', 'wil'],          'c', 156);
+					createSkillHelper('techni-aer', ["Technician", "Aeronautics"],              ['dex', 'int'],          'c', 157);
+					createSkillHelper('techni-cyb', ["Technician", "Cybernetics"],              ['dex', 'int'],          'c', 157);
+					createSkillHelper('techni-ele', ["Technician", "Electronic"],               ['dex', 'int'],          'c', 157);
+					createSkillHelper('techni-jet', ["Technician", "Jets"],                     ['dex', 'int'],          'c', 157);
+					createSkillHelper('techni-mec', ["Technician", "Mechanical"],               ['dex', 'int'],          'c', 157);
+					createSkillHelper('techni-myo', ["Technician", "Myomer"],                   ['dex', 'int'],          'c', 157);
+					createSkillHelper('techni-nuc', ["Technician", "Nuclear"],                  ['dex', 'int'],          'c', 157);
+					createSkillHelper('techni-wea', ["Technician", "Weapons"],                  ['dex', 'int'],          'c', 157);
+					createSkillHelper('thrown-bla', ["Thrown Weapons", "Blades"],               ['dex'],                 's', 158);
+					createSkillHelper('thrown-blu', ["Thrown Weapons", "Blunt Weapons"],        ['dex'],                 's', 158);
+					createSkillHelper('tracki-urb', ["Tracking", "Urban"],                      ['int', 'wil'],          's', 158);
+					createSkillHelper('tracki-wil', ["Tracking", "Wilds"],                      ['int', 'wil'],          's', 158);
+					createSkillHelper('traini',     ["Training"],                               ['int', 'cha'],          'c', 159);
+					createSkillHelper('zerogo',     ["Zero-G Operations"],                      ['rfl'],                 's', 159);
+				})();
 
 				const attributeXpProperty = Bacon.combineAsArray(
 					Object.keys(attrProperties)
