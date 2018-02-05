@@ -90,8 +90,7 @@
 			</form>
 			<h1>Limitations/Known bugs</h1>
 			<ul>
-				<li>The "Alternate Identity" trait is currently not supported.</li>
-				<li>A maximum of 2 compulsions is supported.</li>
+				<li>The "Natural Aptitude" trait is not fully implemented. You will need the manually resolve skill checks which involve natural aptitude, rolling 3d6 instead of 2d6.</li>
 			</ul>
 		</div>
 
@@ -586,9 +585,11 @@
 				}
 
 				const traitProperties = {
+					alte1: createTrait("Alternate ID", 'alte1', [0, 2], [108], initialValueJson.t.alte1),
+					alte2: createTrait("Alternate ID", 'alte2', [0, 2], [108], initialValueJson.t.alte2),
 					ambid: createTrait("Ambidextrous", 'ambidextrous', [0, 2], [108], initialValueJson.t.ambid),
 					anima: createTrait("Animal Empathy, Animal Antipathy", 'animalempathy', [-1, 0, 1], [108], initialValueJson.t.anima),
-					attra: createTrait("Attractive, Unattractive", 'attractive', [-2, 0, 2], [108, 128], initialValueJson.t.attra),
+					attra: createTrait("Attractive, Unattractive", 'attractive', [-1, 0, 2], [108, 128], initialValueJson.t.attra),
 					blood: createTrait("Bloodmark", 'bloodmark', [-5, -4, -3, -2, -1, 0], [109], initialValueJson.t.blood),
 					citiz: createTrait("Citizenship", 'citizenship', [0, 2], [109], initialValueJson.t.citiz),
 					comba: createTrait("Combat Sense, Combat Paralysis", 'combatsense', [-4, 0, 4], [110], initialValueJson.t.comba),
@@ -619,8 +620,8 @@
 					fastL: createTrait("Fast Learner, Slow Learner", 'fastlearner', [-3, 0, 3], [117, 125], initialValueJson.t.fastL),
 					fit: createTrait("Fit, Handicap", 'fip', [-10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 2], [117, 118], initialValueJson.t.fit),
 					gtole: createTrait("G-Tolerance", 'gtolerance', [0, 1], [118], initialValueJson.t.gtole),
-					heari: createTrait("Good Hearing, Poor Hearing", 'hearing', [-1, 0, 1], [118], initialValueJson.t.heari), //TODO: poor hearing pageref
-					visio: createTrait("Good Vision, Poor Vision", 'vision', [-1, 0, 1], [118], initialValueJson.t.visio), //TODO: poor hearing pageref
+					heari: createTrait("Good Hearing, Poor Hearing", 'hearing', [-5, -4, -3, -2, -1, 0, 1], [118, 122], initialValueJson.t.heari),
+					visio: createTrait("Good Vision, Poor Vision", 'vision', [-9, -8, -7, -6, -5, -4, -3, -2, 0, 1], [118, 122], initialValueJson.t.visio),
 					grega: createTrait("Gregarious, Introvert", 'gregarious', [-1, 0, 1], [118, 121], initialValueJson.t.grega),
 					illit: createTrait("Illiterate", 'illiterate', [-1, 0], [119], initialValueJson.t.illit),
 					impl1: createTrait("Implant/Prosthetic", 'implant1', [0, 1, 2, 3, 4, 5, 6], [119], initialValueJson.t.impl1),
@@ -634,12 +635,28 @@
 					//TODO add the other natural aptitudes here
 					natComput: createTrait("Natural Aptitude - Computers", 'naturalComputers', [0, 3], [121], initialValueJson.t.natComput),
 					natPiloti: createTrait("Natural Aptitude - Piloting", 'naturalPiloting', [0, 3], [121], initialValueJson.t.natPiloti),
+					painr: createTrait("Pain Resistance", 'painr', [0, 3], [121], initialValueJson.t.painr),
 					patie: createTrait("Patient, Impatient", 'patient', [-1, 0, 1], [119], initialValueJson.t.patie),
-					techE: createTrait("Tech Empathy, Gremlins", 'techEmpathy', [-3, 0, 3], [118], initialValueJson.t.techE), //TODO: tech empathy pageref
-					tough: createTrait("Toughness, Glassjaw", 'toughness', [-3, 0, 3], [118], initialValueJson.t.tough), //TODO: toughness pageref
+					//TODO: If we implement phenotypes, we should probably update the attributes.
+					poiso: createTrait("Poison Resistance", 'poiso', [0, 2], [122], initialValueJson.t.poiso),
+					prop1: createTrait("Property", 'prop1', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [123], initialValueJson.t.prop1),
+					prop2: createTrait("Property", 'prop2', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [123], initialValueJson.t.prop2),
+					rank1: createTrait("Rank", 'rank1', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], [123], initialValueJson.t.rank1),
+					rank2: createTrait("Rank", 'rank2', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], [123], initialValueJson.t.rank2),
+					repu1: createTrait("Reputation", 'repu1', [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5], [124], initialValueJson.t.repu1),
+					repu2: createTrait("Reputation", 'repu2', [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5], [124], initialValueJson.t.repu2),
+					sixth: createTrait("Sixth Sense", 'sixth', [0, 4], [125], initialValueJson.t.sixth),
+					techE: createTrait("Tech Empathy, Gremlins", 'techEmpathy', [-3, 0, 3], [118, 125], initialValueJson.t.techE),
+					thick: createTrait("Thick-Skinned, Thin-Skinned", 'thick', [-1, 0, 1], [125, 126], initialValueJson.t.thick),
+					title: createTrait("Title/Bloodname", 'title', [0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], [126], initialValueJson.t.title),
+					tough: createTrait("Toughness, Glassjaw", 'toughness', [-3, 0, 3], [118, 127], initialValueJson.t.tough),
+					tds: createTrait("TDS - Trandsit Disorientation Syndrome", 'tds', [-1, 0], [127], initialValueJson.t.tds),
 					trueB: createTrait("Trueborn", 'trueborn', [0, 2], [109], initialValueJson.t.trueB),
+					unluc: createTrait("Unlucky", 'unluc', [-10, -9, -8, -7, -6, -5, -4, -3, -2, 0], [128], initialValueJson.t.unluc),
 					vehi1: createTrait("Vehicle", 'vehic1', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], [128], initialValueJson.t.vehi1),
 					vehi2: createTrait("Vehicle", 'vehic2', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], [128], initialValueJson.t.vehi2),
+					weal1: createTrait("Wealth", 'weal1', [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [128], initialValueJson.t.weal1),
+					weal2: createTrait("Wealth", 'weal1', [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [128], initialValueJson.t.weal2),
 				};
 
 				const $tableSkills = $('#table-skills');
