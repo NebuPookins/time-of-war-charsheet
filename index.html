@@ -415,6 +415,12 @@
 			////////////////////////////////////////////////////////////////////////
 			$(function() {
 				const urlParams = new URLSearchParams(window.location.search);
+				const isLoadedCharacter = urlParams.has('q');
+				const $hide0TraitsInput = $('#hide-0-traits')
+				const $hide0SkillsInput = $('#hide-0-skills')
+				$hide0TraitsInput.prop('checked', isLoadedCharacter);
+				$hide0SkillsInput.prop('checked', isLoadedCharacter);
+				console.log("is loaded character", isLoadedCharacter);
 				var initialValueJson;
 				if (urlParams.has('q')) {
 					const dataString = urlParams.get('q');
@@ -538,7 +544,7 @@
 				};
 
 				const $tableTraits = $('#table-traits');
-				const hide0TraitsProperty = formElementToProperty($('#hide-0-traits'));
+				const hide0TraitsProperty = formElementToProperty($hide0TraitsInput);
 				function createTrait(name, id, allowedTps, pageRefs, initialValue) {
 					initialValue = initialValue || {x: 0, n: ''};
 					const minTp = Math.min(...allowedTps);
@@ -660,7 +666,7 @@
 				};
 
 				const $tableSkills = $('#table-skills');
-				const hide0SkillsProperty = formElementToProperty($('#hide-0-skills'));
+				const hide0SkillsProperty = formElementToProperty($hide0SkillsInput);
 				/**
 				 * @param names array of String of length 1 or 2. name[0] is the skill
 				 * 		name, name[1] is the subskill if any. If the array has length 2,
