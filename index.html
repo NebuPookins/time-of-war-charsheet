@@ -56,6 +56,37 @@
 					</tbody>
 				</table>
 			</form>
+			<h1>Stats</h1>
+			<div class="card-columns">
+				<div class="card">
+					<div class="card-header">Encumbrance (cf p<span class="pageRef" data-page="170">170</span>)</div>
+					<ul class="list-group list-group-flush">
+						<li class="list-group-item">Encumbered: <span id="encumbrance-base-value"></span>kg</li>
+						<li class="list-group-item">Very Encumbered: <span id="encumbrance-very-value"></span>kg</li>
+						<li class="list-group-item">Overloaded: <span id="encumbrance-over-value"></span>kg</li>
+					</ul>
+				</div>
+
+				<div class="card">
+					<div class="card-header">Movement in Meters per Turn (cf p<span class="pageRef" data-page="168">168</span>)</div>
+					<ul class="list-group list-group-flush">
+						<li class="list-group-item">Walk: <span id="movement-value-walk" /></li>
+						<li class="list-group-item">Run: <span id="movement-value-run" /></li>
+						<li class="list-group-item">Sprint: <span id="movement-value-sprint" /></li>
+						<li class="list-group-item">Climb: <span id="movement-value-climb" /></li>
+						<li class="list-group-item">Crawl: <span id="movement-value-crawl" /></li>
+						<li class="list-group-item">Swim: <span id="movement-value-swim" /></li>
+					</ul>
+				</div>
+
+				<div class="card">
+					<div class="card-header">Health and Damage (cf p<span class="pageRef" data-page="179">179</span>)</div>
+					<ul class="list-group list-group-flush">
+						<li class="list-group-item">Standard: <span id="damage-value-standard" /></li>
+						<li class="list-group-item">Fatigue: <span id="damage-value-fatigue" /></li>
+					</ul>
+				</div>
+			</div>
 			<h1>Traits</h1>
 			<form>
 				<table class="table table-sm" id="table-traits">
@@ -407,6 +438,31 @@
 					case 4: return '⚃';
 					case 5: return '⚄';
 					case 6: return '⚅';
+				}
+			}
+
+			/**
+			 * @return an array that looks like [5, 10, 15] representing how many
+			 * kilograms a character must be carrying to be "encumbered",
+			 * "very encumbered" and "overloaded".
+			 */
+			function strengthToEncumbrance(strScore) {
+				//These magic numbers taken from page 170.
+				if (strScore >= 11) {
+					return [strScore * 15, strScore * 30, strScore * 45];
+				}
+				switch (strScore) {
+					case 0: return  [ 0.1,  0.5, 1];
+					case 1: return  [ 5,   10,  15];
+					case 2: return  [10,   20,  25];
+					case 3: return  [15,   30,  50];
+					case 4: return  [20,   40,  75];
+					case 5: return  [30,   60, 100];
+					case 6: return  [40,   80, 125];
+					case 7: return  [55,  110, 150];
+					case 8: return  [70,  140, 200];
+					case 9: return  [85,  170, 250];
+					case 10: return [100, 200, 300];
 				}
 			}
 
@@ -871,6 +927,7 @@
 					});
 					return {
 						xp: skillXpProperty,
+						lvl: skillLevelProperty,
 						notes: skillNoteProperty
 					};
 				}
@@ -1036,6 +1093,57 @@
 				const $xptotalsGrandTotal = $('#xptotals-totals');
 				Bacon.combineWith(attributeXpProperty, traitXpProperty, skillXpProperty, (a, t, s) => a+t+s)
 					.onValue(xp => { $xptotalsGrandTotal.val(xp); });
+
+				const encumbranceValues = {
+					$base: $('#encumbrance-base-value'),
+					$very: $('#encumbrance-very-value'),
+					$over: $('#encumbrance-over-value')
+				};
+				attrProperties.str.score.onValue(str => {
+					const encumScores = strengthToEncumbrance(str);
+					encumbranceValues.$base.text(encumScores[0]);
+					encumbranceValues.$very.text(encumScores[1]);
+					encumbranceValues.$over.text(encumScores[2]);
+				});
+
+				const movementValues = {
+					$walk: $('#movement-value-walk'),
+					$run: $('#movement-value-run'),
+					$sprint: $('#movement-value-sprint'),
+					$climb: $('#movement-value-climb'),
+					$crawl: $('#movement-value-crawl'),
+					$swim: $('#movement-value-swim'),
+				};
+				Bacon.combineTemplate({
+					str: attrProperties.str.score,
+					rfl: attrProperties.rfl.score,
+					running: skillProperties['runnin'].lvl,
+					climbing: skillProperties['climbi'].lvl,
+					swimming: skillProperties['swimmi'].lvl,
+				}).onValue(obj => {
+					const walking = obj.str + obj.rfl;
+					const running = 10 + obj.str + obj.rfl + obj.running;
+					const climbing = obj.climbing == UNTRAINED ?
+						Math.floor(Math.ceil(walking / 2) / 2) :
+						Math.ceil(walking / 2) + obj.climbing;
+					const swimming = obj.swimming == UNTRAINED ?
+						Math.floor(walking / 2) :
+						walking + obj.swimming;
+					movementValues.$walk.text(walking);
+					movementValues.$run.text(running);
+					movementValues.$sprint.text(running * 2);
+					movementValues.$climb.text(climbing);
+					movementValues.$crawl.text(Math.ceil(walking / 4));
+					movementValues.$swim.text(swimming);
+				});
+
+				const damageValues = {
+					$standard: $('#damage-value-standard'),
+					$fatigue: $('#damage-value-fatigue')
+				};
+				attrProperties.bod.score.onValue(bod => { damageValues.$standard.text(bod * 2); });
+				attrProperties.wil.score.onValue(wil => { damageValues.$fatigue.text(wil * 2); });
+				
 
 				const baconCombineTemplate = {
 					a: {},
