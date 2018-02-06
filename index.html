@@ -559,27 +559,27 @@
 							var hitsTarget;
 							switch (rollResults.type) {
 								case ROLL_FUMBLE:
-									exampleString = `You rolled ${individualRollString}, fumbling the attribute check.`;
+									exampleString = `You rolled ${individualRollString}, <b>fumbling</b> the attribute check.`;
 									break;
 								case ROLL_NORMAL:
 									modifiedTotal = rollResults.total + attrScore;
 									hitsTarget = modifiedTotal >= 12;
-									exampleString = `You rolled ${individualRollString} = ${rollResults.total}. Adding ${attrScore} yields ${modifiedTotal} which ${hitsTarget ? 'passes': 'fails'} the attribute check.`;
+									exampleString = `You rolled ${individualRollString} = <b>${rollResults.total}</b>. Adding <b>${attrScore}</b> yields <b>${modifiedTotal}</b> which <b>${hitsTarget ? 'passes': 'fails'}</b> the attribute check.`;
 									break;
 								case ROLL_STUNNING:
 									modifiedTotal = rollResults.total + attrScore;
 									hitsTarget = modifiedTotal >= 12;
-									exampleString = `You rolled ${individualRollString} = ${rollResults.total}, a stunning result! Adding ${attrScore} yields ${modifiedTotal} which ${hitsTarget ? 'passes': 'fails'} the attribute check.`;
+									exampleString = `You rolled ${individualRollString} = <b>${rollResults.total}</b>, a <b>stunning</b> result! Adding <b>${attrScore}</b> yields <b>${modifiedTotal}</b> which <b>${hitsTarget ? 'passes': 'fails'}</b> the attribute check.`;
 									break;
 								case ROLL_MIRACULOUS:
-									exampleString = `You rolled ${individualRollString}, a miraculous result! You automatically succeed the attribute check, assuming it is physically possible to do so.`;
+									exampleString = `You rolled ${individualRollString}, a <b>miraculous</b> result! You automatically succeed the attribute check, assuming it is physically possible to do so.`;
 									break;
 								default:
 									throw `Unrecognized result type ${rollResults.type}.`;
 							}
 							swal({
 								titleText: `${attrCode.toUpperCase()} Attribute Check`,
-								html: `<p>Roll 2d6 and add your ${attrCode.toUpperCase()} score (${attrScore}), trying to hit a target of 12.</p><p>Example: ${exampleString}`,
+								html: `<p>Roll 2d6 and add your <b>${attrCode.toUpperCase()}</b> score (<b>${attrScore}</b>), trying to hit a target of <b>12</b>.</p><p>Example: ${exampleString}`,
 							});
 						});
 					return {
@@ -855,16 +855,16 @@
 							
 							switch (rollResults.type) {
 								case ROLL_FUMBLE:
-									exampleString = `You rolled ${individualRollString}, fumbling the attribute check.`;
+									exampleString = `You rolled ${individualRollString}, <b>fumbling</b> the attribute check.`;
 									break;
 								case ROLL_NORMAL:
-									exampleString = `You rolled ${individualRollString} = ${rollResults.total}.`;
+									exampleString = `You rolled ${individualRollString} = <b>${rollResults.total}</b>.`;
 									break;
 								case ROLL_STUNNING:
-									exampleString = `You rolled ${individualRollString} = ${rollResults.total}, a stunning result!`;
+									exampleString = `You rolled ${individualRollString} = <b>${rollResults.total}</b>, a <b>stunning</b> result!`;
 									break;
 								case ROLL_MIRACULOUS:
-									exampleString = `You rolled ${individualRollString}, a miraculous result! You automatically succeed the attribute check, assuming it is physically possible to do so.`;
+									exampleString = `You rolled ${individualRollString}, a <b>miraculous</b> result! You automatically succeed the attribute check, assuming it is physically possible to do so.`;
 									break;
 								default:
 									throw `Unrecognized result type ${rollResults.type}.`;
@@ -875,41 +875,41 @@
 							var hitsTarget;
 							if (obj.lvl === UNTRAINED) {
 								if (obj.linkedAttrs.length == 1) {
-									explanation = `<p>You're untrained in ${obj.displayName}, so roll 2D6 and add your ${obj.linkedAttrs[0].toUpperCase()} score (${obj.attrs[obj.linkedAttrs[0]].score}), plus any conditional modifiers the gamemaster deems fit, trying to hit a target of 12.</p>`;
+									explanation = `<p>You're untrained in <b>${obj.displayName}</b>, so roll 2D6 and add your <b>${obj.linkedAttrs[0].toUpperCase()}</b> score (<b>${obj.attrs[obj.linkedAttrs[0]].score}</b>), plus any conditional modifiers the gamemaster deems fit, trying to hit a target of <b>12</b>.</p>`;
 									if (rollResults.type == ROLL_FUMBLE || rollResults == ROLL_MIRACULOUS) {
 										explanation += `<p>Example: ${exampleString}</p>`;
 									} else {
 										modifiedTotal = rollResults.total + obj.attrs[obj.linkedAttrs[0]].score;
 										hitsTarget = modifiedTotal >= 12;
-										explanation += `<p>Example: ${exampleString} Adding ${obj.attrs[obj.linkedAttrs[0]].score} yields ${modifiedTotal} which ${hitsTarget ? 'passes':'fails'} the skill check.</p>`;
+										explanation += `<p>Example: ${exampleString} Adding <b>${obj.attrs[obj.linkedAttrs[0]].score}</b> yields <b>${modifiedTotal}</b> which <b>${hitsTarget ? 'passes':'fails'}</b> the skill check.</p>`;
 									}
 								} else {
 									attrModifiers = obj.attrs[obj.linkedAttrs[0]].score + obj.attrs[obj.linkedAttrs[1]].score;
-									explanation = `<p>You're untrained in ${obj.displayName}, so roll 2D6 and add your ${obj.linkedAttrs[0].toUpperCase()} and ${obj.linkedAttrs[1].toUpperCase()} scores (${obj.attrs[obj.linkedAttrs[0]].score} + ${obj.attrs[obj.linkedAttrs[1]].score} = ${attrModifiers}), plus any conditional modifiers the gamemaster deems fit, trying to hit a target of 18.</p>`;
+									explanation = `<p>You're untrained in <b>${obj.displayName}</b>, so roll 2D6 and add your <b>${obj.linkedAttrs[0].toUpperCase()}</b> and <b>${obj.linkedAttrs[1].toUpperCase()}</b> scores (<b>${obj.attrs[obj.linkedAttrs[0]].score}</b> + <b>${obj.attrs[obj.linkedAttrs[1]].score}</b> = <b>${attrModifiers}</b>), plus any conditional modifiers the gamemaster deems fit, trying to hit a target of <b>18</b>.</p>`;
 									if (rollResults.type == ROLL_FUMBLE || rollResults == ROLL_MIRACULOUS) {
 										explanation += `<p>Example: ${exampleString}</p>`;
 									} else {
 										modifiedTotal = rollResults.total + attrModifiers;
 										hitsTarget = modifiedTotal >= 18;
-										explanation += `<p>Example: ${exampleString} Adding ${attrModifiers} yields ${modifiedTotal} which ${hitsTarget ? 'passes':'fails'} the skill check.</p>`;
+										explanation += `<p>Example: ${exampleString} Adding <b>${attrModifiers}</b> yields <b>${modifiedTotal}</b> which <b>${hitsTarget ? 'passes':'fails'}</b> the skill check.</p>`;
 									}
 								}
 							} else {
 								var linkedAttrExplanation;
 								if (obj.linkedAttrs.length == 1) {
-									linkedAttrExplanation = `${obj.linkedAttrs[0].toUpperCase()} attribute (${obj.attrs[obj.linkedAttrs[0]].link})`;
+									linkedAttrExplanation = `<b>${obj.linkedAttrs[0].toUpperCase()}</b> attribute (<b>${obj.attrs[obj.linkedAttrs[0]].link}</b>)`;
 									attrModifiers = obj.attrs[obj.linkedAttrs[0]].link;
 								} else {
 									attrModifiers = obj.attrs[obj.linkedAttrs[0]].link + obj.attrs[obj.linkedAttrs[1]].link;
-									linkedAttrExplanation = `${obj.linkedAttrs[0].toUpperCase()} and ${obj.linkedAttrs[1].toUpperCase()} attributes (${obj.attrs[obj.linkedAttrs[0]].link}+${obj.attrs[obj.linkedAttrs[1]].link}=${attrModifiers})`;
+									linkedAttrExplanation = `<b>${obj.linkedAttrs[0].toUpperCase()}</b> and <b>${obj.linkedAttrs[1].toUpperCase()}</b> attributes (<b>${obj.attrs[obj.linkedAttrs[0]].link}</b>+<b>${obj.attrs[obj.linkedAttrs[1]].link}</b>=<b>${attrModifiers}</b>)`;
 								}
-								explanation = `<p>You are trained in ${obj.displayName}, so roll 2D6 adding your skill level (${obj.lvl}) and the linked attribute modifier for the ${linkedAttrExplanation}, and any conditional modifiers the game master deems fit. Because this skill is rated as ${actionRating === SKILL_ACTION_SIMPLE ? 'Simple' : 'Complex'}-${obj.effectiveTraining === SKILL_TRAINING_BASIC ? 'Basic':'Advanced'}, you're trying to hit a target score of ${obj.tn}.</p>`;
+								explanation = `<p>You are trained in <b>${obj.displayName}</b>, so roll 2D6 adding your skill level (<b>${obj.lvl}</b>) and the linked attribute modifier for the ${linkedAttrExplanation}, and any conditional modifiers the game master deems fit. Because this skill is rated as <b>${actionRating === SKILL_ACTION_SIMPLE ? 'Simple' : 'Complex'}-${obj.effectiveTraining === SKILL_TRAINING_BASIC ? 'Basic':'Advanced'}</b>, you're trying to hit a target score of <b>${obj.tn}</b>.</p>`;
 								if (rollResults.type == ROLL_FUMBLE || rollResults == ROLL_MIRACULOUS) {
 									explanation += `<p>Example: ${exampleString}</p>`;
 								} else {
 									modifiedTotal = rollResults.total + obj.lvl + attrModifiers;
 									hitsTarget = modifiedTotal >= obj.tn;
-									explanation += `<p>Example: ${exampleString} Adding ${obj.lvl} and ${attrModifiers} yields ${modifiedTotal} which ${hitsTarget ? 'passes':'fails'} the skill check.</p>`;
+									explanation += `<p>Example: ${exampleString} Adding <b>${obj.lvl}</b> and <b>${attrModifiers}</b> yields <b>${modifiedTotal}</b> which <b>${hitsTarget ? 'passes':'fails'}</b> the skill check.</p>`;
 								}
 							}
 							swal({
