@@ -1125,7 +1125,8 @@
 					swimming: skillProperties['swimmi'].lvl,
 				}).onValue(obj => {
 					const walking = obj.str + obj.rfl;
-					const running = 10 + obj.str + obj.rfl + obj.running;
+					const bonusFromRunningSkill = obj.running == UNTRAINED ? 0 : obj.running;
+					const running = 10 + obj.str + obj.rfl + bonusFromRunningSkill;
 					const climbing = obj.climbing == UNTRAINED ?
 						Math.floor(Math.ceil(walking / 2) / 2) :
 						Math.ceil(walking / 2) + obj.climbing;
