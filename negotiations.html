@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<title>Battletech Mercenaries Negotiations by Nebu Pookins</title>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Available Contracts This Month</h1>
+			<div class="alert alert-danger" role="alert">
+				This functionality is in early alpha!
+			</div>
+			<div class="card-columns" id="contract-container">
+			</div>
+		</div>
+		<script id="template-contract-card" type="text/x-handlebars-template">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">{{title}}</h5>
+					<p class="card-text">{{body}}</p>
+				</div>
+				<ul class="list-group list-group-flush">
+					<li class="list-group-item">Duration: {{initialDuration}} months</li>
+					<li class="list-group-item">Base Salary: {{numAddSeperators initialBasePay}} ₡/unit months</li>
+					<li class="list-group-item">Total Base Pay: {{numAddSeperators initialTotalBasePay}} ₡/unit</li>
+				</ul>
+				<div class="card-body">
+					<button class="btn btn-primary">Begin Negotiations</button>
+				</div>
+			</div>
+		</script>
+		<script id="template-no-contracts" type="text/x-handlebars-template">
+			<div class="card border-danger mb-3">
+				<div class="card-body text-danger">
+					<h5 class="card-title">No Contracts!</h5>
+					<p class="card-text">Unfortunately, this was a slow month. No contracts are available. Try again next month.</p>
+				</div>
+			</div>
+		</script>
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js" integrity="sha256-+JMHsXRyeTsws/tzbIh5YHQxRdKCuNjmvNcTFtY6DLc=" crossorigin="anonymous"></script>
+		<script type="text/javascript">
+			(function() {
+				'use strict';
+				
+				function rollD6() {
+					return Math.floor(Math.random() * 6) + 1;
+				}
+				function roll2D6() {
+					return rollD6() + rollD6();
+				}
+				function pickRandomElement(array) {
+					const randomIndex = Math.floor(Math.random() * array.length);
+					return array[randomIndex];
+				}
+				function pickRandomKey(obj) {
+					return pickRandomElement(Object.keys(obj));
+				}
+				function pickRandomValue(obj) {
+					return obj[pickRandomKey(obj)];
+				}
+				function poisson(mean) {
+					const l = Math.E ** -mean;
+					var k  = 0
+					var p = 1;
+					do {
+						k++;
+						p *= Math.random();
+					} while (p > l);
+					return k - 1;
+				}
+				function standardPayForOneUnit() {
+					return poisson(24) * 100
+				}
+				Handlebars.registerHelper('numAddSeperators', function(num) {
+					return num.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1\'');
+				});
+				const missionTypes = {
+					garrison: () => {
+						return {
+							title: "Garrison Duty",
+							desc: "Watch over a low-risk, uncontested planet of some strategic value. No hostile forces nor civil rebellion is expected.",
+							initialOffer: {
+								months: poisson(7+6) + 1,
+								basePay: standardPayForOneUnit() * 0.5
+							},
+							command: -20,
+						};
+					},
+					cadre: () => {
+						return {
+							title: "Cadre Duty",
+							desc: `Train new ${pickRandomElement(["recruits", "militia forces"])} for an upcoming tour of duty.`,
+							initialOffer: {
+								months: poisson(7+8) + 1,
+								basePay: standardPayForOneUnit() * 0.5
+							},
+							command: -20,
+						};
+					},
+					security: () => {
+						return {
+							title: "Security Duty",
+							desc: `Provide security for ${pickRandomElement(["a specific installation", "a supply convoy", "a JumpShip", "commercial transports", "a dignitary"])}.`,
+							initialOffer: {
+								months: poisson(7+4) + 1,
+								basePay: standardPayForOneUnit() * 0.75
+							},
+							command: -20,
+						};
+					},
+					riot: () => {
+						//TODO: Conditions, avoid dealing damage to strategic points of interest
+						return {
+							title: "Riot Duty",
+							desc: `Suppress ${pickRandomElement(["a brewing", "an active"])} rebellion on a world under the employer's control.`,
+							initialOffer: {
+								months: poisson(7+3) + 1,
+								basePay: standardPayForOneUnit() * 0.75
+							},
+							command: 0,
+						};
+					},
+					defense: () => {
+						return {
+							title: "Defensive Campaign",
+							desc: `The employer has discovered enemy intentions to ${pickRandomElement(["invade","escalate hostilities"])} on one of their worlds. Mercs and household troops will be deployed to help defend against the imminent assault.`,
+							initialOffer: {
+								months: poisson(7) + 1,
+								basePay: standardPayForOneUnit() * 1
+							},
+							command: 0
+						};
+					},
+					relief: () => {
+						/*
+						 * TODO: Randomly: do the attackers control the approach to the
+						 * world? Do the attackers control most of the planetary surface?
+						 * HIDDEN: Are the original defenders in position to put up a
+						 * fight when help reaches them?
+						 */
+						return {
+							title: "Relief Duty",
+							desc: "The mercs must support the local forces that recently suffered an unexpected attack.",
+							initialOffer: {
+								months: poisson(7-3) + 1,
+								basePay: standardPayForOneUnit() * 1.25
+							},
+							command: -0
+						};
+					},
+					assault: () => {
+						return {
+							title: "Planetary Assault",
+							desc: "Mercs must penetrate through a hostile world's defenses and establish an initial base of operations. They must then gain aerospace superiority and set up drop zones and a secure perimeter into which additional forces can be deployed.",
+							initialOffer: {
+								months: poisson(7-6) + 1,
+								basePay: standardPayForOneUnit() * 1.5
+							},
+							command: 0
+						};
+					},
+					offensive: () => {
+						return {
+							title: "Offensive Campaign",
+							desc: "Mercs must help expand control over a contested planet.",
+							initialOffer: {
+								months: poisson(7) + 1,
+								basePay: standardPayForOneUnit() * 1.0
+							},
+							command: 0
+						};
+							
+					},
+					siege: () => {
+						return {
+							title: "Siege Campaign",
+							desc: `Mercs must prevent any supplies from reaching a ${pickRandomElement(["hostile", "contested"])} planet. Will involve ${pickRandomElement(["establishing", "maintaining"])} aerospace superiority.`,
+							initialOffer: {
+								months: poisson(7+3) + 1,
+								basePay: standardPayForOneUnit() * 1.0
+							},
+							command: 0
+						};
+					},
+					recon: () => {
+						return {
+							title: "Recon Raid",
+							desc: "The Mercs must assault a planet to determine its defensive capabilities.",
+							initialOffer: {
+								months: poisson(7-6) + 1,
+								basePay: standardPayForOneUnit() * 1.5
+							},
+							command: -50
+						};
+					},
+					objective: () => {
+						return {
+							title: "Objective Raid",
+							desc: `The Mercs must ${pickRandomElement(["capture" , "destroy"])} a ${pickRandomElement(["supply depot" , "convoy", "scientist", "political leader", "specific installation"])}.`,
+							initialOffer: {
+								months: poisson(7-6) + 1,
+								basePay: standardPayForOneUnit() * 1.5
+							},
+							command: -50
+						};
+					},
+					diversion: () => {
+						//TODO: Randomly pretend this is an objective raid, and the twist is this is actually a diversionary raid.
+						return {
+							title: "Diversionary Raid",
+							desc: `The Mercs must pretend they are attempting to ${pickRandomElement(["capture" , "destroy"])} a ${pickRandomElement(["supply depot" , "convoy", "scientist", "political leader", "specific installation"])}, but they are acting as a diversion for the real operation which is happening elsewhere on the planet.`,
+							initialOffer: {
+								months: poisson(7-3) + 1,
+								basePay: standardPayForOneUnit() * 2.0
+							},
+							command: -30
+						}
+							
+					},
+					guerrilla: () => {
+						return {
+							title: "Guerrila Warfare",
+							desc: "The mercs must infiltrate a hostile planet, stir dissent, and convince the locals to riot. This is an infantry-only stealth mission. Hostile planet may have mech forces.",
+							initialOffer: {
+								months: poisson(7+6) + 1,
+								basePay: standardPayForOneUnit() * 1.75
+							},
+							command: -60
+						};
+					}
+				};
+				const twists = { //does not include "diversion" missions which are disguised as "objective" missions
+					stranded: { //employers will sacrifice a merc unit to save their own units, or a ship commander may panic and pull out
+					},
+					invalid: { //employer claims merc violated the contract and will not pay.
+					},
+					intel: { //Some aspect of the employer's information is inaccurate
+					},
+					store: { //the company store overcharges and there's "nothing" the mercs can do about it.
+					}
+				}
+				const $contractContainer = $('#contract-container');
+				const template = {
+					contractCard: Handlebars.compile($('#template-contract-card').html()),
+					noContracts: Handlebars.compile($('#template-no-contracts').html())
+				};
+				const numContracts = poisson(3); //TODO make this random, based on your reputation?
+				if (numContracts === 0) {
+					$contractContainer.append(template.noContracts());
+					return;
+				}
+				var contractInstance;
+				for (var i = 0; i < numContracts; i++) {
+					contractInstance = pickRandomValue(missionTypes)();
+					$contractContainer.append(template.contractCard({
+						title: contractInstance.title,
+						body: contractInstance.desc,
+						initialDuration: contractInstance.initialOffer.months,
+						initialBasePay: contractInstance.initialOffer.basePay,
+						initialTotalBasePay: contractInstance.initialOffer.months * contractInstance.initialOffer.basePay
+					}));
+				}
+
+				console.log(pickRandomKey(missionTypes));
+				console.log(pickRandomKey(missionTypes));
+				console.log(pickRandomKey(missionTypes));
+				const employerDiplomacy = rollD6() - 1;
+
+			})();
+		</script>
+</body>
+</html>
